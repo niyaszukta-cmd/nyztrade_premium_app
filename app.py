@@ -3651,18 +3651,12 @@ def main():
             portal_login("equity"); return
 
         _save_session()
-        sidebar_member_info(member, "#00ffb4")
         page = top_nav(
             ["🏠 Home","📊 Active Calls","📈 Track Record",
              "📄 Research Hub","🎬 Video Library","👤 My Profile"],
             accent="#00ffb4", portal_label="Equity Portal", member=member
         )
-        # Mobile bottom tabs override sidebar selection
-        page = bottom_tabs([
-            ("🏠","Home","🏠 Home"),("📊","Calls","📊 Active Calls"),
-            ("📈","Record","📈 Track Record"),("📄","Research","📄 Research Hub"),
-            ("🎬","Videos","🎬 Video Library"),("👤","Profile","👤 My Profile"),
-        ], key="eq", accent="#00ffb4") or page
+
         eq_pages = {
             "🏠 Home":          equity_home,
             "📊 Active Calls":  equity_home,
@@ -3679,31 +3673,8 @@ def main():
             "🎬 Video Library": "🎬 Loading videos...",
             "👤 My Profile":    "👤 Loading profile...",
         }
-        if page == "📊 Active Calls":
-            st.markdown('<div class="section-header">📊 Active Equity Calls</div>', unsafe_allow_html=True)
-            conn = get_conn()
-            rows = _fetchall(_exec(conn, "SELECT * FROM equity_calls WHERE status='Open' ORDER BY created_at DESC"))
-            close_conn(conn)
-            if not rows: st.info("No active calls right now.")
-            for r in rows:
-                rr = round((r['target1']-r['entry_price'])/(r['entry_price']-r['stop_loss']),2) if r['entry_price'] and r['stop_loss'] and r['stop_loss']!=r['entry_price'] else None
-                st.markdown(f"""<div class="call-card {r['call_type'].lower()}">
-                  <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px">
-                    <div><span style="font-size:18px;font-weight:800;color:#fff">{r['symbol']}</span><span class="badge badge-{r['call_type'].lower()}">{r['call_type']}</span><span class="badge badge-open">OPEN</span></div>
-                    <div style="font-size:12px;color:#445566">{r['posted_date'] or ''}</div>
-                  </div>
-                  <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap">
-                    <div><div style="font-size:10px;color:#445566;text-transform:uppercase">Entry</div><div style="font-size:18px;font-weight:700;color:#fff">₹{r['entry_price']}</div></div>
-                    <div><div style="font-size:10px;color:#445566;text-transform:uppercase">T1</div><div style="font-size:18px;font-weight:700;color:#00ffb4">₹{r['target1']}</div></div>
-                    {"<div><div style='font-size:10px;color:#445566;text-transform:uppercase'>T2</div><div style='font-size:18px;font-weight:700;color:#00ffb4'>₹"+str(r['target2'])+"</div></div>" if r['target2'] else ""}
-                    <div><div style="font-size:10px;color:#445566;text-transform:uppercase">SL</div><div style="font-size:18px;font-weight:700;color:#ff6b6b">₹{r['stop_loss']}</div></div>
-                    {"<div><div style='font-size:10px;color:#445566;text-transform:uppercase'>R:R</div><div style='font-size:18px;font-weight:700;color:#ffd700'>1:"+str(rr)+"</div></div>" if rr else ""}
-                  </div>
-                  {"<div style='margin-top:10px;background:#020e20;border-radius:6px;padding:8px;font-size:13px;color:#c0d0e0'><b style='color:#00ddff'>Analysis:</b> "+r['rationale']+"</div>" if r['rationale'] else ""}
-                </div>""", unsafe_allow_html=True)
-        else:
-            with st.spinner(_eq_msgs.get(page, "⏳ Loading...")):
-                    eq_pages[page](member)
+        with st.spinner(_eq_msgs.get(page, "⏳ Loading...")):
+            eq_pages[page](member)
         return
 
     # ── OPTIONS PORTAL ────────────────────────────────────────────────
@@ -3714,7 +3685,6 @@ def main():
             portal_login("options"); return
 
         _save_session()
-        sidebar_member_info(member, "#7b61ff")
         page = top_nav(
             ["🏠 Home","⚡ Active Calls","📊 GEX Analysis","📈 Track Record","📄 Research Hub","🎬 Video Library","👤 My Profile"],
             accent="#7b61ff", portal_label="Options Portal", member=member
@@ -3768,7 +3738,6 @@ def main():
             portal_login("adv_equity"); return
 
         _save_session()
-        sidebar_member_info(member, "#00e5ff")
         page = top_nav(
             ["🏠 Home","📊 Active Calls","🚀 Advanced Calls","📈 Track Record","📄 Research Hub","🎬 Video Library","👤 My Profile"],
             accent="#00e5ff", portal_label="Advanced Equity", member=member
@@ -3817,7 +3786,6 @@ def main():
             portal_login("adv_options"); return
 
         _save_session()
-        sidebar_member_info(member, "#ff6b35")
         page = top_nav(
             ["🏠 Home","⚡ Active Calls","🔥 GEX & Gamma Blast","📊 GEX Analysis","📈 Track Record","📄 Research Hub","🎬 Video Library","👤 My Profile"],
             accent="#ff6b35", portal_label="Advanced Options", member=member
@@ -3865,7 +3833,6 @@ def main():
             portal_login("adv_combo"); return
 
         _save_session()
-        sidebar_member_info(member, "#c084fc")
         page = top_nav(
             ["🏠 Home","📊 Equity Calls","🚀 Adv Equity","⚡ Options Calls","🔥 GEX & Gamma Blast","📊 GEX Analysis","📈 Track Record","📄 Research Hub","🎬 Video Library","👤 My Profile"],
             accent="#c084fc", portal_label="Advanced Combo", member=member
@@ -3894,7 +3861,6 @@ def main():
             portal_login("valuation_screener"); return
 
         _save_session()
-        sidebar_member_info(member, "#00ff88")
         # Valuation screener has no page nav — just logout in top bar
         top_nav([], accent="#00ff88", portal_label="Valuation Screener", member=member)
         st.markdown('''<style>
@@ -3923,7 +3889,6 @@ def main():
             portal_login("research"); return
 
         _save_session()
-        sidebar_member_info(member, "#ffd700")
         page = top_nav(
             ["📄 Research Reports","🏦 Broker Calls","👤 My Profile"],
             accent="#ffd700", portal_label="Research Hub", member=member
