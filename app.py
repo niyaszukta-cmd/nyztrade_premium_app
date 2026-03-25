@@ -154,7 +154,7 @@ html, body, [class*="css"] { font-family: 'DM Sans', sans-serif !important; }
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: clamp(22px, 5vw, 36px); font-weight: 800; color: #a855f7;
 }
-.metric-label { font-size: 10px; color: #5a4870; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; }
+.metric-label { font-size: 10px; color: #c084fc; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; }
 
 /* ── CALL CARDS ── */
 .call-card {
@@ -175,7 +175,7 @@ html, body, [class*="css"] { font-family: 'DM Sans', sans-serif !important; }
 .badge-sell   { background: #ff6b6b22; color: #ff6b6b; border: 1px solid #ff6b6b; }
 .badge-hold   { background: #ffd70022; color: #ffd700; border: 1px solid #ffd700; }
 .badge-open   { background: #a855f722; color: #c084fc; border: 1px solid #a855f7; }
-.badge-closed { background: #3d2f5e33; color: #7c6a9b; border: 1px solid #3d2f5e; }
+.badge-closed { background: #3d2f5e33; color: #b8a8d0; border: 1px solid #3d2f5e; }
 .badge-ce     { background: #00ffb422; color: #00ffb4; border: 1px solid #00ffb4; }
 .badge-pe     { background: #ff6b6b22; color: #ff6b6b; border: 1px solid #ff6b6b; }
 
@@ -185,7 +185,7 @@ html, body, [class*="css"] { font-family: 'DM Sans', sans-serif !important; }
     font-size: clamp(20px, 5vw, 28px);
     font-weight: 800; color: #ffffff; margin-bottom: 4px;
 }
-.section-sub { font-size: 12px; color: #5a4870; margin-bottom: 18px; }
+.section-sub { font-size: 12px; color: #c084fc; margin-bottom: 18px; }
 
 /* ── TAG ── */
 .tag {
@@ -346,7 +346,7 @@ input, textarea, select {
     .nyz-tab .nyz-icon { font-size: 20px; line-height: 1; }
     .nyz-tab .nyz-label {
         font-size: 9px;
-        color: #445566;
+        color: #a0b4c8;
         letter-spacing: 0.3px;
         font-family: DM Sans, sans-serif;
         white-space: nowrap;
@@ -1247,7 +1247,7 @@ def render_report_meta(r):
         try:
             up_val = float(r["upside_pct"])
             up_col = "#00ffb4" if up_val >= 0 else "#ff6b6b"
-            upside_html = f'<div style="background:{up_col}18;border:1px solid {up_col}44;border-radius:8px;padding:10px 16px;text-align:center"><div style="font-size:10px;color:#445566;text-transform:uppercase;letter-spacing:1px">Upside</div><div style="font-size:18px;font-weight:700;color:{up_col}">{up_val:+.1f}%</div></div>'
+            upside_html = f'<div style="background:{up_col}18;border:1px solid {up_col}44;border-radius:8px;padding:10px 16px;text-align:center"><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase;letter-spacing:1px">Upside</div><div style="font-size:18px;font-weight:700;color:{up_col}">{up_val:+.1f}%</div></div>'
         except Exception:
             pass
     tags_html = " ".join(
@@ -1271,11 +1271,11 @@ def render_report_meta(r):
         items = "".join(f'<div style="font-size:13px;color:#f0c8c8;padding:3px 0;border-left:2px solid #ff6b6b;padding-left:10px;margin-bottom:4px">⚠️ {n}</div>' for n in negatives)
         neg_html = f'<div style="margin-top:12px"><div style="font-size:10px;color:#ff6b6b;text-transform:uppercase;letter-spacing:2px;font-weight:700;margin-bottom:8px">Key Risks</div>{items}</div>'
 
-    summary_html = f'<div style="margin-top:12px;font-size:13px;color:#9d8ab5;line-height:1.7">{summary}</div>' if summary else ""
+    summary_html = f'<div style="margin-top:12px;font-size:13px;color:#d4c8e8;line-height:1.7">{summary}</div>' if summary else ""
 
     cmp_str    = f"₹{r['current_price']}" if r.get("current_price") else "—"
     target_str = f"₹{r['target_price']}"  if r.get("target_price")  else "—"
-    analyst_html = f'<div style="font-size:11px;color:#9d8ab5;margin-top:3px">Analyst: {r["analyst"]}</div>' if r.get("analyst") else ""
+    analyst_html = f'<div style="font-size:11px;color:#e2d9f3;margin-top:3px">Analyst: {r["analyst"]}</div>' if r.get("analyst") else ""
 
     st.markdown(f"""
     <div class="report-card">
@@ -1289,22 +1289,22 @@ def render_report_meta(r):
                   border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700;
                   margin-left:10px;letter-spacing:1px;text-transform:uppercase;vertical-align:middle">{r.get("call_type") or "—"}</span>
           </div>
-          <div style="font-size:12px;color:#6b5a8a;margin-top:4px">{r.get("sector") or ""} &nbsp;·&nbsp; {r.get("category") or ""}</div>
+          <div style="font-size:12px;color:#c084fc;margin-top:4px">{r.get("sector") or ""} &nbsp;·&nbsp; {r.get("category") or ""}</div>
         </div>
         <div style="text-align:right">
           <div style="font-size:13px;font-weight:700;color:#c084fc">{r.get("broker_house") or "—"}</div>
-          <div style="font-size:11px;color:#445566;margin-top:4px">{r.get("report_date") or ""}</div>
+          <div style="font-size:11px;color:#a0b4c8;margin-top:4px">{r.get("report_date") or ""}</div>
           {analyst_html}
         </div>
       </div>
 
       <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">
         <div style="background:#0a0715;border:1px solid #2d1f4e;border-radius:8px;padding:10px 16px;text-align:center">
-          <div style="font-size:10px;color:#445566;text-transform:uppercase;letter-spacing:1px">CMP</div>
+          <div style="font-size:10px;color:#a0b4c8;text-transform:uppercase;letter-spacing:1px">CMP</div>
           <div style="font-size:18px;font-weight:700;color:#fff">{cmp_str}</div>
         </div>
         <div style="background:#0a0715;border:1px solid #2d1f4e;border-radius:8px;padding:10px 16px;text-align:center">
-          <div style="font-size:10px;color:#445566;text-transform:uppercase;letter-spacing:1px">Target</div>
+          <div style="font-size:10px;color:#a0b4c8;text-transform:uppercase;letter-spacing:1px">Target</div>
           <div style="font-size:18px;font-weight:700;color:{ct_color}">{target_str}</div>
         </div>
         {upside_html}
@@ -1316,7 +1316,7 @@ def render_report_meta(r):
 
       {f'<div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap">{tags_html}</div>' if tags_html else ""}
 
-      <div style="margin-top:12px;font-size:10px;color:#3b2d55;letter-spacing:1px">
+      <div style="margin-top:12px;font-size:10px;color:#e2d9f3;letter-spacing:1px">
         🔒 PDF view-only · Right-click and print/save shortcuts disabled
       </div>
     </div>
@@ -1362,7 +1362,7 @@ def render_pdf_viewer(pdf_bytes, report_id):
     transition: background 0.15s;
   }}
   #toolbar button:hover {{ background:#5b2fa0; color:#fff; }}
-  #page-info {{ color:#6b5a8a; font-size:11px; min-width:70px; text-align:center; }}
+  #page-info {{ color:#c084fc; font-size:11px; min-width:70px; text-align:center; }}
   #zoom-info  {{ color:#5b2fa0; font-size:11px; min-width:44px; text-align:center; }}
   #lock-badge {{
     margin-left:auto; background:#ff6b6b18; color:#ff9999; border:1px solid #ff6b6b33;
@@ -1370,7 +1370,7 @@ def render_pdf_viewer(pdf_bytes, report_id):
     letter-spacing:1px; text-transform:uppercase;
   }}
   #loading {{
-    color:#6b5a8a; font-size:13px; text-align:center; padding:60px;
+    color:#c084fc; font-size:13px; text-align:center; padding:60px;
     display:flex; flex-direction:column; align-items:center; gap:12px;
   }}
   .spinner {{
@@ -1543,21 +1543,21 @@ def render_broker_call_card(r):
         </div>
         <div style="text-align:right">
           <div style="font-size:13px;font-weight:700;color:#c084fc">{r['broker_house']}</div>
-          <div style="font-size:11px;color:#445566">{r['call_date'] or ''}</div>
+          <div style="font-size:11px;color:#a0b4c8">{r['call_date'] or ''}</div>
         </div>
       </div>
       <div style="display:flex;gap:24px;margin-top:12px;flex-wrap:wrap">
-        <div><div style="font-size:10px;color:#445566;text-transform:uppercase">Entry</div>
+        <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">Entry</div>
              <div style="font-weight:700;color:#fff">₹{r['entry_price'] or '—'}</div></div>
-        <div><div style="font-size:10px;color:#445566;text-transform:uppercase">Target</div>
+        <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">Target</div>
              <div style="font-weight:700;color:{ct_color}">₹{r['target_price'] or '—'}</div></div>
-        <div><div style="font-size:10px;color:#445566;text-transform:uppercase">Stop Loss</div>
+        <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">Stop Loss</div>
              <div style="font-weight:700;color:#ff6b6b">₹{r['stop_loss'] or '—'}</div></div>
-        {f"<div><div style='font-size:10px;color:#445566;text-transform:uppercase'>Upside</div><div>{upside}</div></div>" if upside else ""}
-        {f"<div><div style='font-size:10px;color:#445566;text-transform:uppercase'>Timeframe</div><div style='color:#9d8ab5;font-size:13px'>{r['timeframe']}</div></div>" if r['timeframe'] else ""}
+        {f"<div><div style='font-size:10px;color:#a0b4c8;text-transform:uppercase'>Upside</div><div>{upside}</div></div>" if upside else ""}
+        {f"<div><div style='font-size:10px;color:#a0b4c8;text-transform:uppercase'>Timeframe</div><div style='color:#d4c8e8;font-size:13px'>{r['timeframe']}</div></div>" if r['timeframe'] else ""}
       </div>
-      {f"<div style='margin-top:10px;font-size:13px;color:#99aabb'><b style='color:#7b61ff'>Analyst:</b> {r['analyst']}</div>" if r['analyst'] else ""}
-      {f"<div style='margin-top:6px;font-size:13px;color:#99aabb'>{r['rationale']}</div>" if r['rationale'] else ""}
+      {f"<div style='margin-top:10px;font-size:13px;color:#e0eaf4'><b style='color:#7b61ff'>Analyst:</b> {r['analyst']}</div>" if r['analyst'] else ""}
+      {f"<div style='margin-top:6px;font-size:13px;color:#e0eaf4'>{r['rationale']}</div>" if r['rationale'] else ""}
     </div>
     """, unsafe_allow_html=True)
 
@@ -1576,8 +1576,8 @@ def select_portal():
     st.markdown(f'''
     <div style="text-align:center;padding:32px 20px 10px;">
       <img src="{NYZTRADE_LOGO_SRC}" style="width:220px;height:auto;border-radius:14px;margin-bottom:16px;box-shadow:0 8px 40px #a855f722;" alt="NYZTrade">
-      <div style="font-family:Space Grotesk,sans-serif;font-size:10px;font-weight:600;color:#4b3a6b;letter-spacing:6px;text-transform:uppercase;">Quantitative Trading Intelligence</div>
-      <div style="font-size:13px;color:#5a4870;margin-top:8px;">GEX Analytics &nbsp;·&nbsp; Options Flows &nbsp;·&nbsp; Equity Research &nbsp;·&nbsp; Broker Reports</div>
+      <div style="font-family:Space Grotesk,sans-serif;font-size:10px;font-weight:600;color:#c084fc;letter-spacing:6px;text-transform:uppercase;">Quantitative Trading Intelligence</div>
+      <div style="font-size:13px;color:#c084fc;margin-top:8px;">GEX Analytics &nbsp;·&nbsp; Options Flows &nbsp;·&nbsp; Equity Research &nbsp;·&nbsp; Broker Reports</div>
     </div>
     ''', unsafe_allow_html=True)
 
@@ -1606,7 +1606,7 @@ def select_portal():
     for col, card in zip(row1, card_data[:3]):
         icon, tag, title, sub, bg_c, accent, txt_c, feats, portal_key = card
         with col:
-            feats_html = "".join(f'<div style="font-size:11px;color:#9d8ab5;padding:3px 0;font-family:Space Grotesk,sans-serif;"><span style="color:{accent}">▸</span> {f}</div>' for f in feats)
+            feats_html = "".join(f'<div style="font-size:11px;color:#e2d9f3;padding:3px 0;font-family:Space Grotesk,sans-serif;"><span style="color:{accent}">▸</span> {f}</div>' for f in feats)
             st.markdown(f"""
             <div style="background:linear-gradient(145deg,#140d24,#0d0818);border:1px solid {accent}44;
                  border-radius:22px;padding:24px 20px;position:relative;overflow:hidden;
@@ -1618,7 +1618,7 @@ def select_portal():
                    letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;font-family:Space Grotesk,sans-serif;">{tag}</div>
               <div style="font-size:28px;margin-bottom:10px;">{icon}</div>
               <div style="font-family:Outfit,sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:4px;">{title}</div>
-              <div style="font-size:11px;color:#6b5a8a;margin-bottom:14px;letter-spacing:0.5px;">{sub}</div>
+              <div style="font-size:11px;color:#c084fc;margin-bottom:14px;letter-spacing:0.5px;">{sub}</div>
               <div style="height:1px;background:linear-gradient(90deg,{accent}44,transparent);margin-bottom:12px;"></div>
               {feats_html}
             </div>""", unsafe_allow_html=True)
@@ -1634,7 +1634,7 @@ def select_portal():
     for col, card in zip(row2, card_data[3:]):
         icon, tag, title, sub, bg_c, accent, txt_c, feats, portal_key = card
         with col:
-            feats_html = "".join(f'<div style="font-size:11px;color:#9d8ab5;padding:3px 0;font-family:Space Grotesk,sans-serif;"><span style="color:{accent}">▸</span> {f}</div>' for f in feats)
+            feats_html = "".join(f'<div style="font-size:11px;color:#e2d9f3;padding:3px 0;font-family:Space Grotesk,sans-serif;"><span style="color:{accent}">▸</span> {f}</div>' for f in feats)
             # Premium badge for advanced portals
             premium_badge = f'<div style="position:absolute;top:14px;right:14px;background:linear-gradient(135deg,{accent},{accent}88);color:#000;font-size:8px;font-weight:900;padding:2px 8px;border-radius:20px;letter-spacing:1.5px;text-transform:uppercase;">PREMIUM</div>' if portal_key in ("adv_equity","adv_options") else ""
             st.markdown(f"""
@@ -1649,7 +1649,7 @@ def select_portal():
                    letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;font-family:Space Grotesk,sans-serif;">{tag}</div>
               <div style="font-size:28px;margin-bottom:10px;">{icon}</div>
               <div style="font-family:Outfit,sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:4px;">{title}</div>
-              <div style="font-size:11px;color:#6b5a8a;margin-bottom:14px;letter-spacing:0.5px;">{sub}</div>
+              <div style="font-size:11px;color:#c084fc;margin-bottom:14px;letter-spacing:0.5px;">{sub}</div>
               <div style="height:1px;background:linear-gradient(90deg,{accent}44,transparent);margin-bottom:12px;"></div>
               {feats_html}
             </div>""", unsafe_allow_html=True)
@@ -1659,7 +1659,7 @@ def select_portal():
                 st.rerun()
 
     st.markdown('''
-    <div style="text-align:center;margin-top:24px;font-family:Space Grotesk,sans-serif;font-size:12px;color:#3b2d55;">
+    <div style="text-align:center;margin-top:24px;font-family:Space Grotesk,sans-serif;font-size:12px;color:#e2d9f3;">
       Not subscribed yet? Contact Dr. Niyas N —
       <a href="https://linkedin.com/in/drniyas" target="_blank" style="color:#a855f7;text-decoration:none;font-weight:600;">linkedin.com/in/drniyas</a>
     </div>''', unsafe_allow_html=True)
@@ -1693,7 +1693,7 @@ def portal_login(portal_type):
     st.markdown(f'''
     <div style="text-align:center;padding:20px 0 12px;">
       <img src="{NYZTRADE_LOGO_SRC}" style="width:150px;height:auto;border-radius:10px;margin-bottom:10px;box-shadow:0 4px 24px #a855f718;" alt="NYZTrade">
-      <div style="font-family:Space Grotesk,sans-serif;font-size:10px;color:#4b3a6b;letter-spacing:6px;text-transform:uppercase;margin-top:4px;">{title}</div>
+      <div style="font-family:Space Grotesk,sans-serif;font-size:10px;color:#c084fc;letter-spacing:6px;text-transform:uppercase;margin-top:4px;">{title}</div>
     </div>
 
     <div style="background:linear-gradient(145deg,#130d22,#0e0818);border:1px solid {accent}44;
@@ -1706,7 +1706,7 @@ def portal_login(portal_type):
              border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;">{icon}</div>
         <div>
           <div style="font-family:Outfit,sans-serif;font-size:20px;font-weight:800;color:#fff;">{title}</div>
-          <div style="font-family:Space Grotesk,sans-serif;font-size:11px;color:#6b5a8a;margin-top:3px;">Enter your credentials below</div>
+          <div style="font-family:Space Grotesk,sans-serif;font-size:11px;color:#c084fc;margin-top:3px;">Enter your credentials below</div>
         </div>
       </div>
       <div style="height:1px;background:linear-gradient(90deg,{accent}44,transparent);margin-bottom:20px;"></div>
@@ -1738,7 +1738,7 @@ def portal_login(portal_type):
         st.session_state.portal = None
         st.rerun()
     st.markdown(f'''
-    <div style="text-align:center;font-family:Space Grotesk,sans-serif;font-size:12px;color:#3b2d55;margin-top:14px;">
+    <div style="text-align:center;font-family:Space Grotesk,sans-serif;font-size:12px;color:#e2d9f3;margin-top:14px;">
       Not subscribed? — <a href="https://linkedin.com/in/drniyas" target="_blank" style="color:{accent};text-decoration:none;font-weight:600;">Contact Dr. Niyas N</a>
     </div>''', unsafe_allow_html=True)
 
@@ -1758,7 +1758,7 @@ def admin_login():
     st.markdown(f'''
     <div style="text-align:center;padding:20px 0 12px;">
       <img src="{NYZTRADE_LOGO_SRC}" style="width:150px;height:auto;border-radius:10px;margin-bottom:10px;box-shadow:0 4px 24px #7c3aed18;" alt="NYZTrade">
-      <div style="font-family:Space Grotesk,sans-serif;font-size:10px;color:#4b3a6b;letter-spacing:5px;text-transform:uppercase;margin-top:4px;">Admin Command Centre</div>
+      <div style="font-family:Space Grotesk,sans-serif;font-size:10px;color:#c084fc;letter-spacing:5px;text-transform:uppercase;margin-top:4px;">Admin Command Centre</div>
     </div>
     <div style="background:linear-gradient(145deg,#130d22,#0e0818);border:1px solid #3b1f6b;
          border-radius:24px;padding:32px;position:relative;overflow:hidden;
@@ -1768,7 +1768,7 @@ def admin_login():
         <div style="width:52px;height:52px;background:#3b1f6b22;border:1px solid #5b2fa033;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;">⚙️</div>
         <div>
           <div style="font-family:Outfit,sans-serif;font-size:22px;font-weight:800;color:#fff;">Admin Portal</div>
-          <div style="font-family:Space Grotesk,sans-serif;font-size:11px;color:#6b5a8a;margin-top:3px;">Restricted Access · Dr. Niyas N only</div>
+          <div style="font-family:Space Grotesk,sans-serif;font-size:11px;color:#c084fc;margin-top:3px;">Restricted Access · Dr. Niyas N only</div>
         </div>
       </div>
     </div>''', unsafe_allow_html=True)
@@ -1961,7 +1961,7 @@ def admin_research():
     with tab1:
         st.markdown("##### Upload Broker Research PDF")
         st.markdown("""
-        <div style="background:#0a0715;border:1px solid #2d1f4e;border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:#9d8ab5;line-height:1.8">
+        <div style="background:#0a0715;border:1px solid #2d1f4e;border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:#d4c8e8;line-height:1.8">
         <b style="color:#c084fc">✨ AI Auto-Fill:</b> Upload a PDF and click <b style="color:#ffd700">Extract & Auto-Fill</b> —
         Llama 3.3 70B (via Groq) will read the report and fill all fields including a summary, key positives and negatives.
         You can edit any field before saving. Max PDF size: <b style="color:#ffd700">15 MB</b>.
@@ -2017,15 +2017,15 @@ def admin_research():
             neg = ai_data.get("negatives") or []
             if pos or neg:
                 st.markdown("""<div style="background:#0c0a18;border:1px solid #2d1f4e;border-radius:12px;padding:18px;margin-bottom:16px">
-                <div style="font-size:12px;color:#445566;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;font-weight:700">📊 AI-Extracted Summary</div>""", unsafe_allow_html=True)
+                <div style="font-size:12px;color:#c8dce8;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;font-weight:700">📊 AI-Extracted Summary</div>""", unsafe_allow_html=True)
                 if pos:
                     st.markdown('<div style="font-size:11px;color:#00ffb4;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">✅ Key Positives</div>', unsafe_allow_html=True)
                     for p in pos:
-                        st.markdown(f'<div style="font-size:13px;color:#c0d0e0;padding:3px 0 3px 12px;border-left:2px solid #00ffb4">• {p}</div>', unsafe_allow_html=True)
+                        st.markdown(f'<div style="font-size:13px;color:#e8f0f8;padding:3px 0 3px 12px;border-left:2px solid #00ffb4">• {p}</div>', unsafe_allow_html=True)
                 if neg:
                     st.markdown('<div style="font-size:11px;color:#ff6b6b;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin:12px 0 6px">⚠️ Key Risks / Negatives</div>', unsafe_allow_html=True)
                     for n in neg:
-                        st.markdown(f'<div style="font-size:13px;color:#c0d0e0;padding:3px 0 3px 12px;border-left:2px solid #ff6b6b">• {n}</div>', unsafe_allow_html=True)
+                        st.markdown(f'<div style="font-size:13px;color:#e8f0f8;padding:3px 0 3px 12px;border-left:2px solid #ff6b6b">• {n}</div>', unsafe_allow_html=True)
                 st.markdown("</div>", unsafe_allow_html=True)
 
         # ── Helper: safe index lookup for selectboxes ─────────────────────
@@ -2083,7 +2083,7 @@ def admin_research():
                 upside_pct = round(((target_price - current_price) / current_price * 100), 2) if current_price and target_price else None
                 if upside_pct is not None:
                     color = "#00ffb4" if upside_pct >= 0 else "#ff6b6b"
-                    st.markdown(f'<div style="margin-top:28px;background:#0a0715;border:1px solid #2d1f4e;border-radius:10px;padding:16px;text-align:center"><div style="font-size:11px;color:#445566;text-transform:uppercase">Upside / Downside</div><div style="font-size:28px;font-weight:800;color:{color};margin-top:6px">{upside_pct:+.1f}%</div></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div style="margin-top:28px;background:#0a0715;border:1px solid #2d1f4e;border-radius:10px;padding:16px;text-align:center"><div style="font-size:11px;color:#a0b4c8;text-transform:uppercase">Upside / Downside</div><div style="font-size:28px;font-weight:800;color:{color};margin-top:6px">{upside_pct:+.1f}%</div></div>', unsafe_allow_html=True)
                 tags       = st.text_input("Tags", value=ai_tags, placeholder="largecap, Q3, results...")
                 visible_to = st.selectbox("Visible To", ["all","equity","options","adv_equity","adv_options","research"])
 
@@ -2091,10 +2091,10 @@ def admin_research():
                 value=ai_notes, placeholder="Brief context shown above the PDF viewer...")
 
             if pos_text or neg_text:
-                st.markdown('<div style="font-size:11px;color:#445566;margin-bottom:4px;margin-top:8px">Key Positives (editable)</div>', unsafe_allow_html=True)
+                st.markdown('<div style="font-size:11px;color:#a0b4c8;margin-bottom:4px;margin-top:8px">Key Positives (editable)</div>', unsafe_allow_html=True)
                 positives_text = st.text_area("", value=pos_text, height=110, key="pos_text_field",
                     placeholder="• Key reason 1\n• Key reason 2", label_visibility="collapsed")
-                st.markdown('<div style="font-size:11px;color:#445566;margin-bottom:4px;margin-top:8px">Key Risks / Negatives (editable)</div>', unsafe_allow_html=True)
+                st.markdown('<div style="font-size:11px;color:#a0b4c8;margin-bottom:4px;margin-top:8px">Key Risks / Negatives (editable)</div>', unsafe_allow_html=True)
                 negatives_text = st.text_area("", value=neg_text, height=80, key="neg_text_field",
                     placeholder="• Risk 1\n• Risk 2", label_visibility="collapsed")
             else:
@@ -2207,7 +2207,7 @@ def admin_research():
                 st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
                 st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
                 del_col1, del_col2 = st.columns([3, 1])
-                del_col1.markdown('<div style="font-size:11px;color:#445566;padding-top:8px">⚠️ Deleting a report removes its PDF permanently.</div>', unsafe_allow_html=True)
+                del_col1.markdown('<div style="font-size:11px;color:#a0b4c8;padding-top:8px">⚠️ Deleting a report removes its PDF permanently.</div>', unsafe_allow_html=True)
                 if del_col2.button("🗑️ Delete Report", key=f"dr_{r['id']}", use_container_width=True):
                     conn2 = get_conn()
                     _exec(conn2, "DELETE FROM research_reports WHERE id=?", (r['id'],))
@@ -2235,7 +2235,7 @@ def admin_research():
                     bc_up   = round(((bc_target - bc_cmp) / bc_cmp * 100), 2) if bc_cmp and bc_target else None
                     if bc_up is not None:
                         color = "#00ffb4" if bc_up >= 0 else "#ff6b6b"
-                        st.markdown(f'<div style="margin-top:24px;background:#0a0715;border:1px solid #2d1f4e;border-radius:10px;padding:12px;text-align:center"><div style="font-size:10px;color:#445566;text-transform:uppercase">Upside</div><div style="font-size:24px;font-weight:800;color:{color}">{bc_up:+.1f}%</div></div>', unsafe_allow_html=True)
+                        st.markdown(f'<div style="margin-top:24px;background:#0a0715;border:1px solid #2d1f4e;border-radius:10px;padding:12px;text-align:center"><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">Upside</div><div style="font-size:24px;font-weight:800;color:{color}">{bc_up:+.1f}%</div></div>', unsafe_allow_html=True)
                 bc_rationale = st.text_area("Rationale (optional)", height=70)
                 if st.form_submit_button("Add Broker Call →", use_container_width=True):
                     if not bc_broker or not bc_symbol or not bc_calltype:
@@ -2323,7 +2323,7 @@ def admin_dashboard():
             if rows:
                 pnls = [r[0] for r in rows]; wins = sum(1 for p in pnls if p > 0)
                 col.markdown(f"""<div class="sub-card">
-                  <div style="font-size:13px;color:#445566;letter-spacing:2px;text-transform:uppercase">{label} Track Record</div>
+                  <div style="font-size:13px;color:#c8dce8;letter-spacing:2px;text-transform:uppercase">{label} Track Record</div>
                   <div style="margin-top:12px;display:flex;gap:30px">
                     <div><div class="metric-value" style="font-size:32px;color:#00ffb4">{wins/len(pnls)*100:.0f}%</div><div class="metric-label">Win Rate</div></div>
                     <div><div class="metric-value" style="font-size:32px;color:{'#00ffb4' if sum(pnls)/len(pnls)>0 else '#ff6b6b'}">{sum(pnls)/len(pnls):+.1f}%</div><div class="metric-label">Avg P&L</div></div>
@@ -2336,7 +2336,7 @@ def admin_dashboard():
         st.markdown("#### Latest Equity")
         for r in _fetchall(_exec(conn, "SELECT * FROM equity_calls ORDER BY created_at DESC LIMIT 4")):
             pnl = f" | <span class='{'pnl-pos' if (r['pnl_pct'] or 0)>0 else 'pnl-neg'}'>{r['pnl_pct']:+.1f}%</span>" if r['pnl_pct'] else ""
-            st.markdown(f'<div class="call-card {r["call_type"].lower()}"><b style="color:#fff">{r["symbol"]}</b><span class="badge badge-{r["call_type"].lower()}">{r["call_type"]}</span><span class="badge badge-{r["status"].lower()}">{r["status"]}</span><span style="float:right;font-size:12px;color:#445566">{r["posted_date"] or ""}</span><br><span style="color:#99aabb;font-size:13px">Entry ₹{r["entry_price"]} | SL ₹{r["stop_loss"]}{pnl}</span></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="call-card {r["call_type"].lower()}"><b style="color:#fff">{r["symbol"]}</b><span class="badge badge-{r["call_type"].lower()}">{r["call_type"]}</span><span class="badge badge-{r["status"].lower()}">{r["status"]}</span><span style="float:right;font-size:12px;color:#c8dce8">{r["posted_date"] or ""}</span><br><span style="color:#c8d8e8;font-size:13px">Entry ₹{r["entry_price"]} | SL ₹{r["stop_loss"]}{pnl}</span></div>', unsafe_allow_html=True)
     with right:
         st.markdown("#### Latest Broker Calls")
         for r in _fetchall(_exec(conn, "SELECT * FROM broker_calls ORDER BY created_at DESC LIMIT 4")):
@@ -2416,7 +2416,7 @@ def admin_equity():
                 pnl_str = f"{r['pnl_pct']:+.2f}%" if r['pnl_pct'] else "—"
                 col_card, col_del = st.columns([10, 1])
                 with col_card:
-                    st.markdown(f'<div class="call-card closed"><b style="color:#fff">{r["symbol"]}</b><span class="badge badge-{r["call_type"].lower()}">{r["call_type"]}</span><span style="color:{pc};font-weight:700;float:right;font-size:18px">{pnl_str}</span><br><span style="color:#99aabb;font-size:13px">₹{r["entry_price"]} → ₹{r["exit_price"] or "—"} | {r["result"] or "—"} | {r["exit_date"] or "—"}</span></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="call-card closed"><b style="color:#fff">{r["symbol"]}</b><span class="badge badge-{r["call_type"].lower()}">{r["call_type"]}</span><span style="color:{pc};font-weight:700;float:right;font-size:18px">{pnl_str}</span><br><span style="color:#c8d8e8;font-size:13px">₹{r["entry_price"]} → ₹{r["exit_price"] or "—"} | {r["result"] or "—"} | {r["exit_date"] or "—"}</span></div>', unsafe_allow_html=True)
                 with col_del:
                     if st.button("🗑️", key=f"eq_hdel{r['id']}", help="Delete this call"):
                         _exec(conn, "DELETE FROM equity_calls WHERE id=?", (r['id'],))
@@ -2438,7 +2438,7 @@ def admin_equity():
         if not all_eq:
             st.info("No calls found.")
         else:
-            st.markdown(f'<div style="font-size:12px;color:#445566;margin-bottom:10px">{len(all_eq)} call(s)</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-size:12px;color:#c8dce8;margin-bottom:10px">{len(all_eq)} call(s)</div>', unsafe_allow_html=True)
             for r in all_eq:
                 pc = "#00ffb4" if r["call_type"]=="BUY" else "#ff6b6b"
                 sc = "#00ffb4" if r["status"]=="Open" else "#445566"
@@ -2531,7 +2531,7 @@ def admin_options():
         if not gex_rows:
             st.info("No GEX updates posted yet.")
         else:
-            st.markdown(f'<div style="font-size:12px;color:#445566;margin-bottom:10px">{len(gex_rows)} update(s)</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-size:12px;color:#c8dce8;margin-bottom:10px">{len(gex_rows)} update(s)</div>', unsafe_allow_html=True)
             for g in gex_rows:
                 gcol, gdel = st.columns([10, 1])
                 with gcol:
@@ -2574,7 +2574,7 @@ def admin_options():
                 pnl_str=f"{r['pnl_pct']:+.2f}%" if r['pnl_pct'] else "—"
                 col_card, col_del = st.columns([10, 1])
                 with col_card:
-                    st.markdown(f'<div class="call-card closed"><b style="color:#fff">{r["underlying"]} {r["strike"]} {r["option_type"]} | {r["expiry"]}</b><span class="badge badge-{r["call_type"].lower()}">{r["call_type"]}</span><span style="color:{pc};font-weight:700;float:right;font-size:18px">{pnl_str}</span><br><span style="color:#99aabb;font-size:13px">₹{r["entry_premium"]} → ₹{r["exit_premium"] or "—"} | {r["result"] or "—"} | {r["exit_date"] or "—"}</span></div>',unsafe_allow_html=True)
+                    st.markdown(f'<div class="call-card closed"><b style="color:#fff">{r["underlying"]} {r["strike"]} {r["option_type"]} | {r["expiry"]}</b><span class="badge badge-{r["call_type"].lower()}">{r["call_type"]}</span><span style="color:{pc};font-weight:700;float:right;font-size:18px">{pnl_str}</span><br><span style="color:#c8d8e8;font-size:13px">₹{r["entry_premium"]} → ₹{r["exit_premium"] or "—"} | {r["result"] or "—"} | {r["exit_date"] or "—"}</span></div>',unsafe_allow_html=True)
                 with col_del:
                     if st.button("🗑️", key=f"op_hdel{r['id']}", help="Delete this call"):
                         _exec(conn, "DELETE FROM options_calls WHERE id=?", (r['id'],))
@@ -2596,7 +2596,7 @@ def admin_options():
         if not all_op:
             st.info("No calls found.")
         else:
-            st.markdown(f'<div style="font-size:12px;color:#445566;margin-bottom:10px">{len(all_op)} call(s)</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-size:12px;color:#c8dce8;margin-bottom:10px">{len(all_op)} call(s)</div>', unsafe_allow_html=True)
             for r in all_op:
                 pnl_str = f"{r['pnl_pct']:+.2f}%" if r['pnl_pct'] else ""
                 with st.expander(f"{'⚡' if r['call_type']=='BUY' else '🔻'} {r['underlying']} {r['strike']} {r['option_type']} | {r['expiry']} | {r['status']} | ₹{r['entry_premium']} {pnl_str}"):
@@ -2661,7 +2661,7 @@ def admin_videos():
     tab1, tab2 = st.tabs(["➕ Add Video","📚 Library"])
     with tab1:
         st.markdown("""
-        <div style="background:#0a0715;border:1px solid #2d1f4e;border-radius:10px;padding:16px;margin-bottom:16px;font-size:13px;color:#9d8ab5;line-height:1.8">
+        <div style="background:#0a0715;border:1px solid #2d1f4e;border-radius:10px;padding:16px;margin-bottom:16px;font-size:13px;color:#d4c8e8;line-height:1.8">
         <b style="color:#c084fc">How to get embed codes:</b><br>
         • <b>YouTube:</b> Share → Embed → Copy the &lt;iframe&gt; code<br>
         • <b>Google Drive:</b> Share → Anyone with link → &lt;/&gt; Embed<br>
@@ -2779,7 +2779,7 @@ def admin_videos():
                             st.session_state.pop(edit_key, None)
                             st.rerun()
                 else:
-                    st.markdown(f'<div style="font-size:12px;color:#445566;margin-top:4px">Description: {r['description'] or '—'} &nbsp;·&nbsp; Duration: {r['duration'] or '—'} &nbsp;·&nbsp; Access: {badge}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div style="font-size:12px;color:#c8dce8;margin-top:4px">Description: {r['description'] or '—'} &nbsp;·&nbsp; Duration: {r['duration'] or '—'} &nbsp;·&nbsp; Access: {badge}</div>', unsafe_allow_html=True)
 
 
 def admin_clients():
@@ -2879,7 +2879,7 @@ def admin_clients():
                 for p in pays:
                     pcol, pdel = st.columns([10, 1])
                     with pcol:
-                        st.markdown(f'<div class="call-card"><b style="color:#fff">{p["name"] or "Unknown"}</b> <span style="color:#445566">@{p["username"] or "—"}</span><span style="color:#00ffb4;float:right;font-weight:800;font-size:20px">₹{p["amount"]:,.0f}</span><br><span style="color:#99aabb;font-size:13px">{p["plan"]} | {p["payment_method"] or "—"} | {p["notes"] or "—"} | {p["payment_date"] or "—"}</span></div>',unsafe_allow_html=True)
+                        st.markdown(f'<div class="call-card"><b style="color:#fff">{p["name"] or "Unknown"}</b> <span style="color:#a0b4c8">@{p["username"] or "—"}</span><span style="color:#00ffb4;float:right;font-weight:800;font-size:20px">₹{p["amount"]:,.0f}</span><br><span style="color:#c8d8e8;font-size:13px">{p["plan"]} | {p["payment_method"] or "—"} | {p["notes"] or "—"} | {p["payment_date"] or "—"}</span></div>',unsafe_allow_html=True)
                     with pdel:
                         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
                         if st.button("🗑️", key=f"pay_del_{p['id']}", help="Delete this payment record"):
@@ -2903,7 +2903,7 @@ def admin_clients():
                 st.success(f"✅ Sent {sent} reminder(s).")
             for r in rows:
                 dl=(date.fromisoformat(r['expiry_date'])-date.today()).days
-                st.markdown(f'<div class="call-card" style="border-left-color:#ffd700">{"🔴" if dl<=2 else "🟡"} <b style="color:#fff">{r["name"]}</b> @{r["username"]}<span style="color:#ffd700;float:right;font-weight:700">{dl}d left</span><br><span style="color:#99aabb;font-size:13px">{r["plan"]} | {r["expiry_date"]}</span></div>',unsafe_allow_html=True)
+                st.markdown(f'<div class="call-card" style="border-left-color:#ffd700">{"🔴" if dl<=2 else "🟡"} <b style="color:#fff">{r["name"]}</b> @{r["username"]}<span style="color:#ffd700;float:right;font-weight:700">{dl}d left</span><br><span style="color:#c8d8e8;font-size:13px">{r["plan"]} | {r["expiry_date"]}</span></div>',unsafe_allow_html=True)
 
 
 def admin_performance():
@@ -2994,7 +2994,7 @@ def member_research(member):
         if not rows:
             st.info("No research reports available yet.")
         else:
-            st.markdown(f'<div style="font-size:12px;color:#445566;margin-bottom:16px">{len(rows)} report(s) found</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-size:12px;color:#c8dce8;margin-bottom:16px">{len(rows)} report(s) found</div>', unsafe_allow_html=True)
             for r in rows:
                 r = dict(r)
                 ct_color = {"BUY":"#00ffb4","SELL":"#ff6b6b","HOLD":"#ffd700","ACCUMULATE":"#00ddff","NEUTRAL":"#9d8ab5"}.get((r.get('call_type') or "").upper(),"#9d8ab5")
@@ -3007,7 +3007,7 @@ def member_research(member):
                         if st.button("📖 Open PDF Viewer", key=f"opv_{r['id']}", use_container_width=False):
                             st.session_state[view_key] = not st.session_state.get(view_key, False)
                         if st.session_state.get(view_key, False):
-                            st.markdown('<div style="margin-top:8px;font-size:11px;color:#3b2d55;letter-spacing:1px">🔒 PDF is displayed in secure viewer · Saving or downloading is not permitted</div>', unsafe_allow_html=True)
+                            st.markdown('<div style="margin-top:8px;font-size:11px;color:#e2d9f3;letter-spacing:1px">🔒 PDF is displayed in secure viewer · Saving or downloading is not permitted</div>', unsafe_allow_html=True)
                             conn2 = get_conn()
                             pdf_row = _fetchone(_exec(conn2, "SELECT pdf_data FROM research_reports WHERE id=?", (r['id'],)))
                             close_conn(conn2)
@@ -3066,7 +3066,7 @@ def adv_equity_home(member):
         st.markdown('''<div style="background:#0a0715;border:1px solid #00e5ff22;border-radius:14px;padding:32px;text-align:center;">
           <div style="font-size:32px;margin-bottom:10px;">🚀</div>
           <div style="color:#00e5ff;font-weight:700;font-size:16px;margin-bottom:6px;">No advanced calls right now</div>
-          <div style="color:#445566;font-size:13px;">Premium equity setups are posted here as they trigger.</div>
+          <div style="color:#a0b4c8;font-size:13px;">Premium equity setups are posted here as they trigger.</div>
         </div>''', unsafe_allow_html=True)
         return
     for r in rows:
@@ -3075,16 +3075,16 @@ def adv_equity_home(member):
           <div style="position:absolute;top:10px;right:14px;background:#00e5ff18;color:#00e5ff;border:1px solid #00e5ff44;border-radius:12px;padding:1px 8px;font-size:9px;font-weight:800;letter-spacing:1.5px;">PREMIUM</div>
           <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px">
             <div><span style="font-size:18px;font-weight:800;color:#fff">{r['symbol']}</span><span class="badge badge-{r['call_type'].lower()}">{r['call_type']}</span><span class="badge badge-open">OPEN</span></div>
-            <div style="font-size:12px;color:#445566">{r['posted_date'] or ''}</div>
+            <div style="font-size:12px;color:#c8dce8">{r['posted_date'] or ''}</div>
           </div>
           <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap">
-            <div><div style="font-size:10px;color:#445566;text-transform:uppercase">Entry</div><div style="font-size:20px;font-weight:700;color:#fff">₹{r['entry_price']}</div></div>
-            <div><div style="font-size:10px;color:#445566;text-transform:uppercase">T1</div><div style="font-size:20px;font-weight:700;color:#00e5ff">₹{r['target1']}</div></div>
-            {"<div><div style='font-size:10px;color:#445566;text-transform:uppercase'>T2</div><div style='font-size:20px;font-weight:700;color:#00e5ff'>₹"+str(r['target2'])+"</div></div>" if r['target2'] else ""}
-            <div><div style="font-size:10px;color:#445566;text-transform:uppercase">SL</div><div style="font-size:20px;font-weight:700;color:#ff6b6b">₹{r['stop_loss']}</div></div>
-            {"<div><div style='font-size:10px;color:#445566;text-transform:uppercase'>R:R</div><div style='font-size:20px;font-weight:700;color:#ffd700'>1:"+str(rr)+"</div></div>" if rr else ""}
+            <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">Entry</div><div style="font-size:20px;font-weight:700;color:#fff">₹{r['entry_price']}</div></div>
+            <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">T1</div><div style="font-size:20px;font-weight:700;color:#00e5ff">₹{r['target1']}</div></div>
+            {"<div><div style='font-size:10px;color:#a0b4c8;text-transform:uppercase'>T2</div><div style='font-size:20px;font-weight:700;color:#00e5ff'>₹"+str(r['target2'])+"</div></div>" if r['target2'] else ""}
+            <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">SL</div><div style="font-size:20px;font-weight:700;color:#ff6b6b">₹{r['stop_loss']}</div></div>
+            {"<div><div style='font-size:10px;color:#a0b4c8;text-transform:uppercase'>R:R</div><div style='font-size:20px;font-weight:700;color:#ffd700'>1:"+str(rr)+"</div></div>" if rr else ""}
           </div>
-          {"<div style='margin-top:12px;background:#041428;border-radius:8px;padding:12px;font-size:13px;color:#c0d0e0;line-height:1.7'><b style='color:#00e5ff'>📋 Advanced Analysis:</b><br>"+r['rationale']+"</div>" if r['rationale'] else ""}
+          {"<div style='margin-top:12px;background:#041428;border-radius:8px;padding:12px;font-size:13px;color:#e8f0f8;line-height:1.7'><b style='color:#00e5ff'>📋 Advanced Analysis:</b><br>"+r['rationale']+"</div>" if r['rationale'] else ""}
         </div>""", unsafe_allow_html=True)
 
 
@@ -3102,7 +3102,7 @@ def adv_options_gex_home(member):
         (m4, "Net GEX", "Dealer Flow", "#ffd700"),
     ]:
         col.markdown(f'''<div class="metric-card">
-          <div style="font-size:10px;color:#445566;text-transform:uppercase;letter-spacing:1.5px;">{label}</div>
+          <div style="font-size:10px;color:#a0b4c8;text-transform:uppercase;letter-spacing:1.5px;">{label}</div>
           <div style="font-size:18px;font-weight:800;color:{color};margin-top:6px;">{value}</div>
         </div>''', unsafe_allow_html=True)
 
@@ -3113,7 +3113,7 @@ def adv_options_gex_home(member):
     with c1:
         st.markdown('''<div style="background:#0c0a18;border:1px solid #ff6b3533;border-radius:14px;padding:20px;">
           <div style="font-size:13px;font-weight:700;color:#ff6b35;margin-bottom:12px;">🔥 Gamma Blast Signals</div>
-          <div style="font-size:12px;color:#9d8ab5;line-height:1.8;">
+          <div style="font-size:12px;color:#d4c8e8;line-height:1.8;">
             Gamma Blast triggers fire when net GEX crosses key dealer hedging thresholds.<br><br>
             These signals indicate explosive directional moves driven by dealer delta-hedging cascades.<br><br>
             <span style="color:#ffd700;font-weight:600;">Current signals will appear here when admin posts GEX updates.</span>
@@ -3122,7 +3122,7 @@ def adv_options_gex_home(member):
     with c2:
         st.markdown('''<div style="background:#0c0a18;border:1px solid #00e5ff33;border-radius:14px;padding:20px;">
           <div style="font-size:13px;font-weight:700;color:#00e5ff;margin-bottom:12px;">📊 Vanna & Charm Analysis</div>
-          <div style="font-size:12px;color:#9d8ab5;line-height:1.8;">
+          <div style="font-size:12px;color:#d4c8e8;line-height:1.8;">
             <b style="color:#c084fc;">Vanna</b> — sensitivity of delta to changes in implied volatility (vol-driven dealer flows).<br><br>
             <b style="color:#c084fc;">Charm</b> — rate of change of delta with time (time-decay driven hedging flows).<br><br>
             <span style="color:#ffd700;font-weight:600;">Live analysis is posted in the GEX Weekly tab by admin.</span>
@@ -3130,7 +3130,7 @@ def adv_options_gex_home(member):
         </div>''', unsafe_allow_html=True)
 
     st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
-    st.markdown('<div style="font-size:13px;color:#445566;font-weight:600;margin-bottom:10px;">📋 Latest GEX Updates</div>', unsafe_allow_html=True)
+    st.markdown('<div style="font-size:13px;color:#c8dce8;font-weight:600;margin-bottom:10px;">📋 Latest GEX Updates</div>', unsafe_allow_html=True)
     conn = get_conn()
     try:
         gex_rows = _fetchall(_exec(conn, 
@@ -3146,10 +3146,10 @@ def adv_options_gex_home(member):
             st.markdown(f'''<div class="update-card">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                 <span style="background:#ff6b3518;color:#ff6b35;border:1px solid #ff6b3533;border-radius:12px;padding:2px 10px;font-size:10px;font-weight:700;">📊 GEX UPDATE</span>
-                <span style="font-size:11px;color:#445566">{g["posted_date"] or ""}</span>
+                <span style="font-size:11px;color:#a0b4c8">{g["posted_date"] or ""}</span>
               </div>
               <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:6px;">{g["title"]}</div>
-              <div style="font-size:13px;color:#9d8ab5;line-height:1.7;">{(g["content"] or "")[:400]}{"..." if len(g["content"] or "") > 400 else ""}</div>
+              <div style="font-size:13px;color:#d4c8e8;line-height:1.7;">{(g["content"] or "")[:400]}{"..." if len(g["content"] or "") > 400 else ""}</div>
             </div>''', unsafe_allow_html=True)
 
 
@@ -3172,12 +3172,12 @@ def equity_home(member):
         st.markdown(f"""<div class="call-card {r['call_type'].lower()}">
           <b style="color:#fff;font-size:18px">{r['symbol']}</b><span class="badge badge-{r['call_type'].lower()}">{r['call_type']}</span><span class="badge badge-open">OPEN</span>
           <div style="display:flex;gap:24px;margin-top:10px;flex-wrap:wrap">
-            <div><div style="font-size:10px;color:#445566;text-transform:uppercase">Entry</div><div style="font-size:20px;font-weight:700;color:#fff">₹{r['entry_price']}</div></div>
-            <div><div style="font-size:10px;color:#445566;text-transform:uppercase">Target 1</div><div style="font-size:20px;font-weight:700;color:#00ffb4">₹{r['target1']}</div></div>
-            <div><div style="font-size:10px;color:#445566;text-transform:uppercase">Stop Loss</div><div style="font-size:20px;font-weight:700;color:#ff6b6b">₹{r['stop_loss']}</div></div>
-            {f"<div><div style='font-size:10px;color:#445566;text-transform:uppercase'>R:R</div><div style='font-size:20px;font-weight:700;color:#ffd700'>1:{rr}</div></div>" if rr else ""}
+            <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">Entry</div><div style="font-size:20px;font-weight:700;color:#fff">₹{r['entry_price']}</div></div>
+            <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">Target 1</div><div style="font-size:20px;font-weight:700;color:#00ffb4">₹{r['target1']}</div></div>
+            <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">Stop Loss</div><div style="font-size:20px;font-weight:700;color:#ff6b6b">₹{r['stop_loss']}</div></div>
+            {f"<div><div style='font-size:10px;color:#a0b4c8;text-transform:uppercase'>R:R</div><div style='font-size:20px;font-weight:700;color:#ffd700'>1:{rr}</div></div>" if rr else ""}
           </div>
-          {f"<div style='margin-top:8px;font-size:13px;color:#99aabb'>{r['rationale']}</div>" if r['rationale'] else ""}
+          {f"<div style='margin-top:8px;font-size:13px;color:#e0eaf4'>{r['rationale']}</div>" if r['rationale'] else ""}
         </div>""", unsafe_allow_html=True)
     close_conn(conn)
 
@@ -3190,7 +3190,7 @@ def equity_track_record(member):
     if not rows: st.info("No closed equity calls yet."); return
     pnls = [r['pnl_pct'] for r in rows]; wins = sum(1 for p in pnls if p > 0)
     st.markdown(f"""<div class="sub-card" style="text-align:center;padding:36px">
-      <div style="font-size:11px;color:#445566;text-transform:uppercase;letter-spacing:4px;margin-bottom:16px">Verified Equity Track Record</div>
+      <div style="font-size:11px;color:#a0b4c8;text-transform:uppercase;letter-spacing:4px;margin-bottom:16px">Verified Equity Track Record</div>
       <div class="winrate-badge" style="font-size:32px;padding:10px 36px">{wins/len(pnls)*100:.0f}% Win Rate</div>
       <div style="display:flex;justify-content:center;gap:50px;margin-top:28px;flex-wrap:wrap">
         <div><div class="metric-label">Total</div><div class="metric-value">{len(pnls)}</div></div>
@@ -3204,7 +3204,7 @@ def equity_track_record(member):
     render_bar_chart("Individual Call P&L (%)", [r['symbol'] for r in rows], pnls, ["#00ffb4" if p>0 else "#ff6b6b" for p in pnls])
     for r in rows[::-1]:
         pc = "#00ffb4" if r['pnl_pct'] > 0 else "#ff6b6b"
-        st.markdown(f'<div class="call-card closed"><b style="color:#fff">{r["symbol"]}</b><span class="badge badge-{r["call_type"].lower()}">{r["call_type"]}</span><span style="color:{pc};font-weight:800;float:right">{r["pnl_pct"]:+.2f}%</span><br><span style="color:#99aabb;font-size:12px">{r["result"] or "—"} | {r["exit_date"] or "—"}</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="call-card closed"><b style="color:#fff">{r["symbol"]}</b><span class="badge badge-{r["call_type"].lower()}">{r["call_type"]}</span><span style="color:{pc};font-weight:800;float:right">{r["pnl_pct"]:+.2f}%</span><br><span style="color:#c8d8e8;font-size:12px">{r["result"] or "—"} | {r["exit_date"] or "—"}</span></div>', unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -3228,13 +3228,13 @@ def options_home(member):
     for r in _fetchall(_exec(conn, "SELECT * FROM options_calls WHERE status='Open' ORDER BY created_at DESC LIMIT 5")):
         st.markdown(f"""<div class="call-card {r['call_type'].lower()}">
           <b style="color:#fff;font-size:18px">{r['underlying']} {r['strike']} {r['option_type']}</b><span class="badge badge-{r['call_type'].lower()}">{r['call_type']}</span>
-          <span style="font-size:12px;color:#445566;float:right">Exp: {r['expiry']}</span>
+          <span style="font-size:12px;color:#c8dce8;float:right">Exp: {r['expiry']}</span>
           <div style="display:flex;gap:24px;margin-top:10px;flex-wrap:wrap">
-            <div><div style="font-size:10px;color:#445566;text-transform:uppercase">Entry</div><div style="font-size:20px;font-weight:700;color:#fff">₹{r['entry_premium']}</div></div>
-            <div><div style="font-size:10px;color:#445566;text-transform:uppercase">Target</div><div style="font-size:20px;font-weight:700;color:#00ffb4">₹{r['target_premium']}</div></div>
-            <div><div style="font-size:10px;color:#445566;text-transform:uppercase">Stop Loss</div><div style="font-size:20px;font-weight:700;color:#ff6b6b">₹{r['stop_premium']}</div></div>
+            <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">Entry</div><div style="font-size:20px;font-weight:700;color:#fff">₹{r['entry_premium']}</div></div>
+            <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">Target</div><div style="font-size:20px;font-weight:700;color:#00ffb4">₹{r['target_premium']}</div></div>
+            <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">Stop Loss</div><div style="font-size:20px;font-weight:700;color:#ff6b6b">₹{r['stop_premium']}</div></div>
           </div>
-          {f"<div style='margin-top:8px;background:#020e20;border-radius:6px;padding:8px;font-size:13px;color:#c0d0e0'><b style='color:#7b61ff'>GEX:</b> {r['gex_note']}</div>" if r['gex_note'] else ""}
+          {f"<div style='margin-top:8px;background:#020e20;border-radius:6px;padding:8px;font-size:13px;color:#e8f0f8'><b style='color:#7b61ff'>GEX:</b> {r['gex_note']}</div>" if r['gex_note'] else ""}
         </div>""", unsafe_allow_html=True)
     close_conn(conn)
 
@@ -3259,7 +3259,7 @@ def options_track_record(member):
     if not rows: st.info("No closed options calls yet."); return
     pnls = [r['pnl_pct'] for r in rows]; wins = sum(1 for p in pnls if p > 0)
     st.markdown(f"""<div class="sub-card" style="text-align:center;padding:36px">
-      <div style="font-size:11px;color:#445566;text-transform:uppercase;letter-spacing:4px;margin-bottom:16px">Verified Options Track Record</div>
+      <div style="font-size:11px;color:#a0b4c8;text-transform:uppercase;letter-spacing:4px;margin-bottom:16px">Verified Options Track Record</div>
       <div class="winrate-badge" style="font-size:32px;padding:10px 36px">{wins/len(pnls)*100:.0f}% Win Rate</div>
       <div style="display:flex;justify-content:center;gap:50px;margin-top:28px;flex-wrap:wrap">
         <div><div class="metric-label">Total</div><div class="metric-value">{len(pnls)}</div></div>
@@ -3272,7 +3272,7 @@ def options_track_record(member):
     render_line_chart("Cumulative Options P&L (%)", [r['exit_date'] or f"#{i+1}" for i,r in enumerate(rows)], cum, "#7b61ff")
     for r in rows[::-1]:
         pc = "#00ffb4" if r['pnl_pct'] > 0 else "#ff6b6b"
-        st.markdown(f'<div class="call-card closed"><b style="color:#fff">{r["underlying"]} {r["strike"]} {r["option_type"]} | {r["expiry"]}</b><span class="badge badge-{r["call_type"].lower()}">{r["call_type"]}</span><span style="color:{pc};font-weight:800;float:right">{r["pnl_pct"]:+.2f}%</span><br><span style="color:#99aabb;font-size:12px">{r["result"] or "—"} | {r["exit_date"] or "—"}</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="call-card closed"><b style="color:#fff">{r["underlying"]} {r["strike"]} {r["option_type"]} | {r["expiry"]}</b><span class="badge badge-{r["call_type"].lower()}">{r["call_type"]}</span><span style="color:{pc};font-weight:800;float:right">{r["pnl_pct"]:+.2f}%</span><br><span style="color:#c8d8e8;font-size:12px">{r["result"] or "—"} | {r["exit_date"] or "—"}</span></div>', unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -3299,10 +3299,10 @@ def member_updates(member):
         st.markdown(f"""<div class="update-card">
           <div style="display:flex;justify-content:space-between;margin-bottom:12px">
             <span style="background:{cc}22;color:{cc};border:1px solid {cc}44;border-radius:20px;font-size:11px;padding:2px 12px;font-weight:700;text-transform:uppercase">{r['category']}</span>
-            <div style="font-size:12px;color:#445566">{r['posted_date'] or ''}</div>
+            <div style="font-size:12px;color:#c8dce8">{r['posted_date'] or ''}</div>
           </div>
           <div style="font-size:20px;font-weight:700;color:#fff;margin-bottom:12px">{r['title']}</div>
-          <div style="color:#c0d0e0;line-height:1.7;font-size:15px">{r['content']}</div>
+          <div style="color:#e8f0f8;line-height:1.7;font-size:15px">{r['content']}</div>
           {('<div style="margin-top:12px">'+tags+'</div>') if tags else ""}
         </div>""", unsafe_allow_html=True)
         st.markdown("<hr style='border-color:#0a2040;margin:4px 0 20px'>", unsafe_allow_html=True)
@@ -3346,13 +3346,13 @@ def _video_embed_grid(rows):
     for r in rows:
         with st.expander(f"🎬 {r['title']} — {r['posted_date'] or ''}  |  {r['duration'] or ''}"):
             if r['description']:
-                st.markdown(f'<div style="font-size:13px;color:#9d8ab5;margin-bottom:12px">{r["description"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div style="font-size:13px;color:#d4c8e8;margin-bottom:12px">{r["description"]}</div>', unsafe_allow_html=True)
             if r['embed_code']:
                 # Make embed responsive and full width
                 safe = r['embed_code'].replace('width="560"','width="100%"').replace("width='560'","width='100%'")
                 safe = safe.replace('height="315"','height="400"').replace("height='315'","height='400'")
                 st.markdown(f'<div class="video-embed-wrap">{safe}</div>', unsafe_allow_html=True)
-                st.markdown('<div style="font-size:10px;color:#3b2d55;margin-top:6px;letter-spacing:1px">🔒 View only — download disabled</div>', unsafe_allow_html=True)
+                st.markdown('<div style="font-size:10px;color:#e2d9f3;margin-top:6px;letter-spacing:1px">🔒 View only — download disabled</div>', unsafe_allow_html=True)
             else:
                 st.warning("No embed code available for this video.")
 
@@ -3377,11 +3377,11 @@ def valuation_screener(member):
       <div style="font-size:52px;margin-bottom:16px">💹</div>
       <div style="font-size:26px;font-weight:800;color:#00ff88;margin-bottom:10px;
            font-family:'DM Sans',sans-serif;">NYZTrade Valuation Screener</div>
-      <div style="font-size:14px;color:#6b8aaa;margin-bottom:8px;line-height:1.9">
+      <div style="font-size:14px;color:#c8dce8;margin-bottom:8px;line-height:1.9">
         8,000+ NSE &amp; BSE stocks &nbsp;·&nbsp; DCF Model &nbsp;·&nbsp; Graham Number<br>
         Fair Value vs CMP &nbsp;·&nbsp; Sector Screener &nbsp;·&nbsp; P/E · P/B · ROE filters
       </div>
-      <div style="font-size:12px;color:#2d5a3d;margin-bottom:32px">
+      <div style="font-size:12px;color:#00cc66;margin-bottom:32px">
         No login required — opens directly in your browser
       </div>
       <a href="{url}" target="_blank" rel="noopener noreferrer"
@@ -3408,7 +3408,7 @@ def valuation_screener(member):
             border-radius:12px;padding:20px;text-align:center;">
           <div style="font-size:28px;margin-bottom:10px">{icon}</div>
           <div style="font-weight:700;color:#00ff88;font-size:13px;margin-bottom:6px">{title}</div>
-          <div style="font-size:11px;color:#445566;line-height:1.6">{desc}</div>
+          <div style="font-size:11px;color:#a0b4c8;line-height:1.6">{desc}</div>
         </div>''', unsafe_allow_html=True)
 
 
@@ -3431,29 +3431,29 @@ def member_profile(member, portal_type):
         st.markdown(f"""
         <div style="background:linear-gradient(135deg,#120d20,#0f0a1e);border:1px solid #3d1f6b;border-radius:16px;padding:24px;">
           <div style="font-size:28px;font-weight:800;color:#fff;">{member['name']}</div>
-          <div style="font-size:13px;color:#6b5a8a;margin-top:6px;">@{member['username']}</div>
-          {f'<div style="font-size:13px;color:#5a4870;margin-top:6px;">📧 {member["email"]}</div>' if member.get("email") else ""}
-          <div style="margin-top:12px;font-size:12px;color:#5a4870">Access: {acc_html}</div>
+          <div style="font-size:13px;color:#c084fc;margin-top:6px;">@{member['username']}</div>
+          {f'<div style="font-size:13px;color:#c084fc;margin-top:6px;">📧 {member["email"]}</div>' if member.get("email") else ""}
+          <div style="margin-top:12px;font-size:12px;color:#c084fc">Access: {acc_html}</div>
         </div>""", unsafe_allow_html=True)
     with col_right:
         st.markdown(f"""
         <div style="background:#a855f718;border:1px solid #a855f744;border-radius:16px;padding:24px;text-align:center;">
-          <div style="font-size:10px;color:#5a4870;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">Current Plan</div>
+          <div style="font-size:10px;color:#c084fc;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">Current Plan</div>
           <div style="font-size:18px;font-weight:800;color:#c084fc;">{plan_icon} {member.get('plan','—')}</div>
-          <div style="margin-top:14px;font-size:10px;color:#5a4870;text-transform:uppercase;letter-spacing:2px;">Status</div>
+          <div style="margin-top:14px;font-size:10px;color:#c084fc;text-transform:uppercase;letter-spacing:2px;">Status</div>
           <div style="font-size:16px;font-weight:700;color:{sc};margin-top:6px;">{member['status']}</div>
         </div>""", unsafe_allow_html=True)
 
     st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns(3)
-    with c1: st.markdown(f'<div style="background:#0a0715;border:1px solid #2d1f4e;border-radius:12px;padding:16px;text-align:center;"><div style="font-size:10px;color:#5a4870;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Member Since</div><div style="font-size:15px;font-weight:700;color:#fff;">{member.get("joined_date","—")}</div></div>', unsafe_allow_html=True)
-    with c2: st.markdown(f'<div style="background:#0a0715;border:1px solid #2d1f4e;border-radius:12px;padding:16px;text-align:center;"><div style="font-size:10px;color:#5a4870;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Expires On</div><div style="font-size:15px;font-weight:700;color:#fff;">{member.get("expiry_date","—")}</div></div>', unsafe_allow_html=True)
-    with c3: st.markdown(f'<div style="background:#0a0715;border:1px solid {"#ff6b6b44" if dl is not None and dl<=7 else "#2d1f4e"};border-radius:12px;padding:16px;text-align:center;"><div style="font-size:10px;color:#5a4870;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Days Left</div><div style="font-size:15px;font-weight:700;color:{dl_col};">{"⚠️ " if dl is not None and dl<=7 else ""}{f"{dl} days" if dl is not None else "—"}</div></div>', unsafe_allow_html=True)
+    with c1: st.markdown(f'<div style="background:#0a0715;border:1px solid #2d1f4e;border-radius:12px;padding:16px;text-align:center;"><div style="font-size:10px;color:#c084fc;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Member Since</div><div style="font-size:15px;font-weight:700;color:#fff;">{member.get("joined_date","—")}</div></div>', unsafe_allow_html=True)
+    with c2: st.markdown(f'<div style="background:#0a0715;border:1px solid #2d1f4e;border-radius:12px;padding:16px;text-align:center;"><div style="font-size:10px;color:#c084fc;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Expires On</div><div style="font-size:15px;font-weight:700;color:#fff;">{member.get("expiry_date","—")}</div></div>', unsafe_allow_html=True)
+    with c3: st.markdown(f'<div style="background:#0a0715;border:1px solid {"#ff6b6b44" if dl is not None and dl<=7 else "#2d1f4e"};border-radius:12px;padding:16px;text-align:center;"><div style="font-size:10px;color:#c084fc;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Days Left</div><div style="font-size:15px;font-weight:700;color:{dl_col};">{"⚠️ " if dl is not None and dl<=7 else ""}{f"{dl} days" if dl is not None else "—"}</div></div>', unsafe_allow_html=True)
 
     if dl is not None and dl <= 7:
         st.markdown(f'<div style="margin-top:16px;background:#ff6b6b11;border:1px solid #ff6b6b33;border-radius:12px;padding:14px 18px;color:#ff9999;font-size:13px;">⚠️ Subscription expires in <b>{dl} days</b>. Contact Dr. Niyas N to renew.</div>', unsafe_allow_html=True)
     st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
-    st.markdown('<div style="background:#0f0a1e;border:1px solid #2d1f4e;border-radius:16px;padding:24px;"><div style="font-size:16px;font-weight:700;color:#c084fc;margin-bottom:12px;">📞 Need Help or Renewal?</div><div style="font-size:14px;color:#6b5a8a;line-height:1.9;">Contact Dr. Niyas N directly:<br><a href="https://linkedin.com/in/drniyas" target="_blank" style="color:#a855f7;text-decoration:none;font-weight:600;">🔗 linkedin.com/in/drniyas</a></div></div>', unsafe_allow_html=True)
+    st.markdown('<div style="background:#0f0a1e;border:1px solid #2d1f4e;border-radius:16px;padding:24px;"><div style="font-size:16px;font-weight:700;color:#c084fc;margin-bottom:12px;">📞 Need Help or Renewal?</div><div style="font-size:14px;color:#c084fc;line-height:1.9;">Contact Dr. Niyas N directly:<br><a href="https://linkedin.com/in/drniyas" target="_blank" style="color:#a855f7;text-decoration:none;font-weight:600;">🔗 linkedin.com/in/drniyas</a></div></div>', unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -3483,7 +3483,7 @@ def sidebar_member_info(member, accent="#a855f7"):
     st.sidebar.markdown(f'''<div style="background:#041428;border:1px solid #0a2040;border-radius:10px;
         padding:12px 16px;margin-bottom:8px">
       <div style="font-weight:700;color:#fff;font-size:15px">{member["name"]}</div>
-      <div style="font-size:11px;color:#445566;margin-top:2px">{member["plan"]}</div>
+      <div style="font-size:11px;color:#a0b4c8;margin-top:2px">{member["plan"]}</div>
       <div style="font-size:12px;color:{dl_color};margin-top:6px;font-weight:600">{dl_icon} {dl_text}</div>
     </div>''', unsafe_allow_html=True)
 
@@ -3522,13 +3522,13 @@ def top_nav(pages, accent="#a855f7", logo=True, member=None, portal_label="", db
         st.markdown(
             f'<div style="display:flex;align-items:center;gap:10px;padding:8px 0 4px">' +
             (f'<img src="{NYZTRADE_LOGO_SRC}" style="height:28px;border-radius:6px;">' if logo else "") +
-            f'<span style="font-size:9px;color:#4b3a6b;letter-spacing:3px;text-transform:uppercase;">{portal_label}</span></div>',
+            f'<span style="font-size:9px;color:#c084fc;letter-spacing:3px;text-transform:uppercase;">{portal_label}</span></div>',
             unsafe_allow_html=True
         )
     with col_info:
         if member and name_txt:
             st.markdown(
-                f'<div style="text-align:right;padding:10px 0 4px;font-size:12px;color:#9d8ab5">{name_txt}</div>',
+                f'<div style="text-align:right;padding:10px 0 4px;font-size:12px;color:#d4c8e8">{name_txt}</div>',
                 unsafe_allow_html=True
             )
 
@@ -3574,7 +3574,7 @@ def top_nav(pages, accent="#a855f7", logo=True, member=None, portal_label="", db
 
     if db_status:
         st.markdown(
-            f'<div style="font-size:9px;color:#2d1f4e;margin-top:-12px;margin-bottom:8px">{_DB_STATUS}</div>',
+            f'<div style="font-size:9px;color:#7b5ea7;margin-top:-12px;margin-bottom:8px">{_DB_STATUS}</div>',
             unsafe_allow_html=True
         )
 
@@ -3701,15 +3701,15 @@ def main():
                 st.markdown(f"""<div class="call-card {r['call_type'].lower()}">
                   <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px">
                     <div><span style="font-size:18px;font-weight:800;color:#fff">{r['underlying']} {r['strike']} {r['option_type']}</span><span class="badge badge-{r['call_type'].lower()}">{r['call_type']}</span></div>
-                    <div style="font-size:12px;color:#445566">Exp: {r['expiry']}</div>
+                    <div style="font-size:12px;color:#c8dce8">Exp: {r['expiry']}</div>
                   </div>
                   <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap">
-                    <div><div style="font-size:10px;color:#445566;text-transform:uppercase">Entry</div><div style="font-size:18px;font-weight:700;color:#fff">₹{r['entry_premium']}</div></div>
-                    <div><div style="font-size:10px;color:#445566;text-transform:uppercase">Target</div><div style="font-size:18px;font-weight:700;color:#00ffb4">₹{r['target_premium']}</div></div>
-                    <div><div style="font-size:10px;color:#445566;text-transform:uppercase">SL</div><div style="font-size:18px;font-weight:700;color:#ff6b6b">₹{r['stop_premium']}</div></div>
+                    <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">Entry</div><div style="font-size:18px;font-weight:700;color:#fff">₹{r['entry_premium']}</div></div>
+                    <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">Target</div><div style="font-size:18px;font-weight:700;color:#00ffb4">₹{r['target_premium']}</div></div>
+                    <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">SL</div><div style="font-size:18px;font-weight:700;color:#ff6b6b">₹{r['stop_premium']}</div></div>
                   </div>
-                  {"<div style='margin-top:10px;background:#020e20;border-radius:6px;padding:8px;font-size:13px;color:#c0d0e0'><b style='color:#7b61ff'>GEX:</b> "+r['gex_note']+"</div>" if r['gex_note'] else ""}
-                  {"<div style='margin-top:6px;background:#020e20;border-radius:6px;padding:8px;font-size:13px;color:#c0d0e0'><b style='color:#00ddff'>Analysis:</b> "+r['rationale']+"</div>" if r['rationale'] else ""}
+                  {"<div style='margin-top:10px;background:#020e20;border-radius:6px;padding:8px;font-size:13px;color:#e8f0f8'><b style='color:#7b61ff'>GEX:</b> "+r['gex_note']+"</div>" if r['gex_note'] else ""}
+                  {"<div style='margin-top:6px;background:#020e20;border-radius:6px;padding:8px;font-size:13px;color:#e8f0f8'><b style='color:#00ddff'>Analysis:</b> "+r['rationale']+"</div>" if r['rationale'] else ""}
                 </div>""", unsafe_allow_html=True)
         else:
             with st.spinner(_op_msgs.get(page, "⏳ Loading...")):
@@ -3748,16 +3748,16 @@ def main():
                 st.markdown(f"""<div class="call-card {r['call_type'].lower()}">
                   <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px">
                     <div><span style="font-size:18px;font-weight:800;color:#fff">{r['symbol']}</span><span class="badge badge-{r['call_type'].lower()}">{r['call_type']}</span><span class="badge badge-open">OPEN</span></div>
-                    <div style="font-size:12px;color:#445566">{r['posted_date'] or ''}</div>
+                    <div style="font-size:12px;color:#c8dce8">{r['posted_date'] or ''}</div>
                   </div>
                   <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap">
-                    <div><div style="font-size:10px;color:#445566;text-transform:uppercase">Entry</div><div style="font-size:18px;font-weight:700;color:#fff">₹{r['entry_price']}</div></div>
-                    <div><div style="font-size:10px;color:#445566;text-transform:uppercase">T1</div><div style="font-size:18px;font-weight:700;color:#00e5ff">₹{r['target1']}</div></div>
-                    {"<div><div style='font-size:10px;color:#445566;text-transform:uppercase'>T2</div><div style='font-size:18px;font-weight:700;color:#00e5ff'>₹"+str(r['target2'])+"</div></div>" if r['target2'] else ""}
-                    <div><div style="font-size:10px;color:#445566;text-transform:uppercase">SL</div><div style="font-size:18px;font-weight:700;color:#ff6b6b">₹{r['stop_loss']}</div></div>
-                    {"<div><div style='font-size:10px;color:#445566;text-transform:uppercase'>R:R</div><div style='font-size:18px;font-weight:700;color:#ffd700'>1:"+str(rr)+"</div></div>" if rr else ""}
+                    <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">Entry</div><div style="font-size:18px;font-weight:700;color:#fff">₹{r['entry_price']}</div></div>
+                    <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">T1</div><div style="font-size:18px;font-weight:700;color:#00e5ff">₹{r['target1']}</div></div>
+                    {"<div><div style='font-size:10px;color:#a0b4c8;text-transform:uppercase'>T2</div><div style='font-size:18px;font-weight:700;color:#00e5ff'>₹"+str(r['target2'])+"</div></div>" if r['target2'] else ""}
+                    <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">SL</div><div style="font-size:18px;font-weight:700;color:#ff6b6b">₹{r['stop_loss']}</div></div>
+                    {"<div><div style='font-size:10px;color:#a0b4c8;text-transform:uppercase'>R:R</div><div style='font-size:18px;font-weight:700;color:#ffd700'>1:"+str(rr)+"</div></div>" if rr else ""}
                   </div>
-                  {"<div style='margin-top:10px;background:#020e20;border-radius:6px;padding:8px;font-size:13px;color:#c0d0e0'><b style='color:#00e5ff'>Analysis:</b> "+r['rationale']+"</div>" if r['rationale'] else ""}
+                  {"<div style='margin-top:10px;background:#020e20;border-radius:6px;padding:8px;font-size:13px;color:#e8f0f8'><b style='color:#00e5ff'>Analysis:</b> "+r['rationale']+"</div>" if r['rationale'] else ""}
                 </div>""", unsafe_allow_html=True)
         else:
             with st.spinner("⏳ Loading..."):
@@ -3796,15 +3796,15 @@ def main():
                 st.markdown(f"""<div class="call-card {r['call_type'].lower()}">
                   <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px">
                     <div><span style="font-size:18px;font-weight:800;color:#fff">{r['underlying']} {r['strike']} {r['option_type']}</span><span class="badge badge-{r['call_type'].lower()}">{r['call_type']}</span></div>
-                    <div style="font-size:12px;color:#445566">Exp: {r['expiry']}</div>
+                    <div style="font-size:12px;color:#c8dce8">Exp: {r['expiry']}</div>
                   </div>
                   <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap">
-                    <div><div style="font-size:10px;color:#445566;text-transform:uppercase">Entry</div><div style="font-size:18px;font-weight:700;color:#fff">₹{r['entry_premium']}</div></div>
-                    <div><div style="font-size:10px;color:#445566;text-transform:uppercase">Target</div><div style="font-size:18px;font-weight:700;color:#ff6b35">₹{r['target_premium']}</div></div>
-                    <div><div style="font-size:10px;color:#445566;text-transform:uppercase">SL</div><div style="font-size:18px;font-weight:700;color:#ff6b6b">₹{r['stop_premium']}</div></div>
+                    <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">Entry</div><div style="font-size:18px;font-weight:700;color:#fff">₹{r['entry_premium']}</div></div>
+                    <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">Target</div><div style="font-size:18px;font-weight:700;color:#ff6b35">₹{r['target_premium']}</div></div>
+                    <div><div style="font-size:10px;color:#a0b4c8;text-transform:uppercase">SL</div><div style="font-size:18px;font-weight:700;color:#ff6b6b">₹{r['stop_premium']}</div></div>
                   </div>
-                  {"<div style='margin-top:10px;background:#020e20;border-radius:6px;padding:8px;font-size:13px;color:#c0d0e0'><b style='color:#ff6b35'>GEX:</b> "+r['gex_note']+"</div>" if r['gex_note'] else ""}
-                  {"<div style='margin-top:6px;background:#020e20;border-radius:6px;padding:8px;font-size:13px;color:#c0d0e0'><b style='color:#00ddff'>Analysis:</b> "+r['rationale']+"</div>" if r['rationale'] else ""}
+                  {"<div style='margin-top:10px;background:#020e20;border-radius:6px;padding:8px;font-size:13px;color:#e8f0f8'><b style='color:#ff6b35'>GEX:</b> "+r['gex_note']+"</div>" if r['gex_note'] else ""}
+                  {"<div style='margin-top:6px;background:#020e20;border-radius:6px;padding:8px;font-size:13px;color:#e8f0f8'><b style='color:#00ddff'>Analysis:</b> "+r['rationale']+"</div>" if r['rationale'] else ""}
                 </div>""", unsafe_allow_html=True)
         else:
             with st.spinner("⏳ Loading..."):
@@ -3854,7 +3854,7 @@ def main():
         iframe{border:none!important;border-radius:0!important;}
         </style>''', unsafe_allow_html=True)
         st.markdown(
-            '<div style="font-size:13px;color:#445566;padding:8px 16px;">'
+            '<div style="font-size:13px;color:#c8dce8;padding:8px 16px;">'
             '💹 <b style="color:#00ff88">Valuation Screener</b> — 8,000+ Indian stocks · DCF & Graham analysis'
             '</div>',
             unsafe_allow_html=True
