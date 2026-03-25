@@ -312,6 +312,51 @@ input, textarea, select {
 ::-webkit-scrollbar-track { background: #0a0715; }
 ::-webkit-scrollbar-thumb { background: #3d1f6b; border-radius: 3px; }
 
+/* ── BOTTOM TAB BAR (mobile only) ── */
+.nyz-bottom-nav {
+    display: none;
+}
+@media (max-width: 767px) {
+    .nyz-bottom-nav {
+        display: flex !important;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        z-index: 99999;
+        background: #0f0a1e;
+        border-top: 1px solid #2d1f4e;
+        padding: 6px 0 10px 0;
+        justify-content: space-around;
+        align-items: center;
+    }
+    .nyz-tab {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        padding: 4px 8px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        min-width: 48px;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .nyz-tab .nyz-icon { font-size: 20px; line-height: 1; }
+    .nyz-tab .nyz-label {
+        font-size: 9px;
+        color: #445566;
+        letter-spacing: 0.3px;
+        font-family: DM Sans, sans-serif;
+        white-space: nowrap;
+    }
+    .nyz-tab.active .nyz-label { color: #a855f7; }
+    .nyz-tab.active .nyz-icon { filter: drop-shadow(0 0 4px #a855f7); }
+    /* Add bottom padding to content so it isn't hidden behind tab bar */
+    .block-container { padding-bottom: 80px !important; }
+    /* Hide sidebar on mobile completely — tabs replace it */
+    [data-testid="stSidebar"] { display: none !important; }
+    [data-testid="stSidebarCollapsedControl"] { display: none !important; }
+}
+
 
 /* ── LOADING OVERLAY ── */
 #nyz-loader {
@@ -566,6 +611,66 @@ def close_conn(conn):
     """Close connection. For PG with autocommit=True no commit needed."""
     try: conn.close()
     except: pass
+
+def bottom_tabs(pages: list, key: str, accent: str = "#a855f7") -> str:
+    """
+    Render a mobile bottom tab bar + keep sidebar for desktop.
+    pages: list of (icon, label, page_name) tuples
+    Returns the currently selected page_name.
+    key: unique key per portal (e.g. "eq", "op")
+    """
+    # Get current page from session state
+    sk = f"_tab_{key}"
+    if sk not in st.session_state:
+        st.session_state[sk] = pages[0][2]  # default to first page
+    current = st.session_state[sk]
+
+    # Build bottom tab HTML
+    tabs_html = '''<div class="nyz-bottom-nav">''' 
+    for icon, label, name in pages:
+        active_cls = "active" if name == current else ""
+        # Use a form-style button that submits via query param
+        tabs_html += f'''
+        <button class="nyz-tab {active_cls}" 
+            onclick="window.parent.postMessage({{type:'nyz_tab',key:'{key}',page:'{name}'}},'*')"
+            title="{label}">
+          <span class="nyz-icon">{icon}</span>
+          <span class="nyz-label">{label}</span>
+        </button>'''
+    tabs_html += '</div>'
+
+    # JS listener — receives tab click and updates Streamlit via query params
+    js = f'''
+    <script>
+    (function() {{
+      var doc = (function(){{ try{{return window.parent.document;}}catch(e){{return document;}} }})();
+      window.addEventListener("message", function(e) {{
+        if (e.data && e.data.type === "nyz_tab" && e.data.key === "{key}") {{
+          // Update URL query param — Streamlit watches this
+          var url = new URL(window.parent.location.href);
+          url.searchParams.set("tab_{key}", encodeURIComponent(e.data.page));
+          window.parent.history.pushState({{}}, "", url.toString());
+          // Trigger Streamlit rerun via clicking a hidden element
+          window.parent.dispatchEvent(new Event("popstate"));
+        }}
+      }});
+    }})();
+    </script>
+    '''
+    st.markdown(tabs_html + js, unsafe_allow_html=True)
+
+    # Check query params for tab selection (set by JS above)
+    try:
+        qp = st.query_params.get(f"tab_{key}", "")
+        if qp and qp != current:
+            valid = [p[2] for p in pages]
+            if qp in valid:
+                st.session_state[sk] = qp
+                st.rerun()
+    except Exception:
+        pass
+
+    return st.session_state[sk]
 
 def _sql(raw: str) -> str:
     """
@@ -3434,6 +3539,12 @@ def main():
                 st.rerun()
 
         _save_session()
+        # Mobile bottom tabs override sidebar selection
+        page = bottom_tabs([
+            ("🏠","Home","🏠 Home"),("📊","Calls","📊 Active Calls"),
+            ("📈","Record","📈 Track Record"),("📄","Research","📄 Research Hub"),
+            ("🎬","Videos","🎬 Video Library"),("👤","Profile","👤 My Profile"),
+        ], key="eq", accent="#00ffb4") or page
         eq_pages = {
             "🏠 Home":          equity_home,
             "📊 Active Calls":  equity_home,
@@ -3502,6 +3613,11 @@ def main():
                 st.rerun()
 
         _save_session()
+        page = bottom_tabs([
+            ("🏠","Home","🏠 Home"),("⚡","Calls","⚡ Active Calls"),
+            ("📊","GEX","📊 GEX Analysis"),("📈","Record","📈 Track Record"),
+            ("📄","Research","📄 Research Hub"),("🎬","Videos","🎬 Video Library"),
+        ], key="op", accent="#7b61ff") or page
         op_pages = {
             "🏠 Home":          options_home,
             "📊 GEX Analysis":  options_gex_analysis,
@@ -3569,6 +3685,11 @@ def main():
                 st.rerun()
 
         _save_session()
+        page = bottom_tabs([
+            ("🏠","Home","🏠 Home"),("📊","Calls","📊 Active Calls"),
+            ("🚀","Advanced","🚀 Advanced Calls"),("📈","Record","📈 Track Record"),
+            ("📄","Research","📄 Research Hub"),("🎬","Videos","🎬 Video Library"),
+        ], key="adveq", accent="#00e5ff") or page
         adveq_pages = {
             "🏠 Home":           equity_home,
             "📊 Active Calls":   equity_home,
@@ -3631,6 +3752,11 @@ def main():
                 st.rerun()
 
         _save_session()
+        page = bottom_tabs([
+            ("🏠","Home","🏠 Home"),("⚡","Calls","⚡ Active Calls"),
+            ("🔥","GEX","🔥 GEX & Gamma Blast"),("📊","Analysis","📊 GEX Analysis"),
+            ("📄","Research","📄 Research Hub"),("🎬","Videos","🎬 Video Library"),
+        ], key="advop", accent="#ff6b35") or page
         advop_pages = {
             "🏠 Home":              options_home,
             "⚡ Active Calls":      options_home,
@@ -3693,6 +3819,11 @@ def main():
                 st.rerun()
 
         _save_session()
+        page = bottom_tabs([
+            ("🏠","Home","🏠 Home"),("📊","Equity","📊 Equity Calls"),
+            ("⚡","Options","⚡ Options Calls"),("🔥","GEX","🔥 GEX & Gamma Blast"),
+            ("📄","Research","📄 Research Hub"),("👤","Profile","👤 My Profile"),
+        ], key="advc", accent="#c084fc") or page
         advc_pages = {
             "🏠 Home":           equity_home,
             "📊 Equity Calls":   equity_home,
@@ -3774,6 +3905,11 @@ def main():
                 st.rerun()
 
         _save_session()
+        page = bottom_tabs([
+            ("📄","Reports","📄 Research Reports"),
+            ("🏦","Broker","🏦 Broker Calls"),
+            ("👤","Profile","👤 My Profile"),
+        ], key="res", accent="#ffd700") or page
         res_pages = {
             "📄 Research Reports": member_research,
             "🏦 Broker Calls":     member_research,
