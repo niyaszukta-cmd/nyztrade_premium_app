@@ -1988,6 +1988,8 @@ def admin_research():
             col_btn, col_status = st.columns([2, 5])
             if col_btn.button("✨ Extract & Auto-Fill", type="primary", use_container_width=True):
                 with st.spinner("📖 Reading PDF text..."):
+                    uploaded_pdf.seek(0)
+                    pdf_bytes_preview = uploaded_pdf.read()
                     uploaded_pdf.seek(0)  # reset for later save
                     pdf_text = _extract_pdf_text(pdf_bytes_preview)
 
