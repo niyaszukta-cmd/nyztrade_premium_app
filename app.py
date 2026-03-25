@@ -3363,67 +3363,53 @@ def _video_embed_grid(rows):
 # To activate: replace VALUATION_SCREENER_URL with your Streamlit Cloud URL
 # e.g. "https://nyztrade-valuation.streamlit.app"
 
-VALUATION_SCREENER_URL = ""   # ← PASTE YOUR VALUATION APP URL HERE
+VALUATION_SCREENER_URL = "https://value-screeners-wvdrespkw4jjbv2m6pauva.streamlit.app/"
 
 def valuation_screener(member):
     st.markdown('<div class="section-header">💹 Valuation Screener</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-sub">DCF valuation · Graham number · Fair value analysis · 8,000+ stocks</div>', unsafe_allow_html=True)
 
-    if not VALUATION_SCREENER_URL or not VALUATION_SCREENER_URL.startswith("http"):
-        # Placeholder until URL is set
-        st.markdown(f"""
-        <div style="background:linear-gradient(135deg,#0a1628,#0e1e38);border:1px solid #00ddff33;
-             border-radius:20px;padding:60px 40px;text-align:center;margin:20px 0">
-          <div style="font-size:48px;margin-bottom:20px">💹</div>
-          <div style="font-size:28px;font-weight:800;color:#00ddff;margin-bottom:10px">
-            Valuation Screener
-          </div>
-          <div style="font-size:15px;color:#6b8aaa;margin-bottom:30px;line-height:1.8">
-            8,000+ NSE & BSE stocks · DCF Model · Graham Number<br>
-            Fair Value vs CMP · Sector Screener · P/E, P/B, ROE filters
-          </div>
-          <div style="background:#0a1628;border:1px dashed #00ddff44;border-radius:12px;
-               padding:20px;display:inline-block;margin-bottom:24px">
-            <div style="font-size:12px;color:#445566;letter-spacing:2px;
-                 text-transform:uppercase;margin-bottom:8px">Coming Soon</div>
-            <div style="font-size:13px;color:#00ddff">
-              Deploying shortly — check back soon
-            </div>
-          </div>
-          <br>
-          <div style="font-size:12px;color:#2d4a6b;margin-top:10px">
-            For admin: set VALUATION_SCREENER_URL in app.py line ~{content.count(chr(10), 0, content.find("VALUATION_SCREENER_URL ="))+1}
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
+    url = VALUATION_SCREENER_URL or "https://value-screeners-wvdrespkw4jjbv2m6pauva.streamlit.app/"
 
-        # Feature preview cards
-        c1, c2, c3 = st.columns(3)
-        for col, icon, title, desc in [
-            (c1, "📊", "DCF Valuation", "Intrinsic value using discounted cash flows"),
-            (c2, "📐", "Graham Number", "Benjamin Graham conservative fair value"),
-            (c3, "🔍", "Stock Screener", "Filter 8,000+ stocks by valuation metrics"),
-        ]:
-            col.markdown(f'''<div style="background:#0a0f1e;border:1px solid #1a2a4a;
-                border-radius:12px;padding:20px;text-align:center;height:120px">
-              <div style="font-size:24px">{icon}</div>
-              <div style="font-weight:700;color:#00ddff;font-size:14px;margin:8px 0 4px">{title}</div>
-              <div style="font-size:11px;color:#445566;line-height:1.5">{desc}</div>
-            </div>''', unsafe_allow_html=True)
-        return
-
-    # URL is set — embed the app via iframe
     st.markdown(f'''
-    <div style="border:1px solid #00ddff22;border-radius:12px;overflow:hidden;margin-top:8px">
-      <iframe src="{VALUATION_SCREENER_URL}"
-              width="100%"
-              height="800"
-              frameborder="0"
-              style="display:block;min-height:800px">
-      </iframe>
+    <div style="background:linear-gradient(135deg,#0a1628,#0e1e38);border:1px solid #00ff8833;
+         border-radius:20px;padding:48px 32px;text-align:center;margin:24px 0">
+      <div style="font-size:52px;margin-bottom:16px">💹</div>
+      <div style="font-size:26px;font-weight:800;color:#00ff88;margin-bottom:10px;
+           font-family:'DM Sans',sans-serif;">NYZTrade Valuation Screener</div>
+      <div style="font-size:14px;color:#6b8aaa;margin-bottom:8px;line-height:1.9">
+        8,000+ NSE &amp; BSE stocks &nbsp;·&nbsp; DCF Model &nbsp;·&nbsp; Graham Number<br>
+        Fair Value vs CMP &nbsp;·&nbsp; Sector Screener &nbsp;·&nbsp; P/E · P/B · ROE filters
+      </div>
+      <div style="font-size:12px;color:#2d5a3d;margin-bottom:32px">
+        No login required — opens directly in your browser
+      </div>
+      <a href="{url}" target="_blank" rel="noopener noreferrer"
+         style="display:inline-block;background:linear-gradient(135deg,#00ff88,#00cc66);
+                color:#000;font-weight:800;font-size:15px;padding:14px 40px;
+                border-radius:50px;text-decoration:none;letter-spacing:0.5px;
+                box-shadow:0 4px 20px rgba(0,255,136,0.3);">
+        🚀 Open Valuation Screener →
+      </a>
+      <div style="margin-top:20px;font-size:11px;color:#2d5a3d">
+        Opens in a new tab &nbsp;·&nbsp; Bookmark it for quick access
+      </div>
     </div>
     ''', unsafe_allow_html=True)
-    st.caption("💹 Valuation Screener — powered by NYZTrade Analytics")
+
+    # Feature cards
+    c1, c2, c3 = st.columns(3)
+    for col, icon, title, desc in [
+        (c1, "📊", "DCF Valuation", "Intrinsic value using discounted cash flows for 8,000+ stocks"),
+        (c2, "📐", "Graham Number", "Benjamin Graham conservative fair value estimate"),
+        (c3, "🔍", "Stock Screener", "Filter by P/E, P/B, ROE, sector and valuation band"),
+    ]:
+        col.markdown(f'''<div style="background:#0a0f1e;border:1px solid #00ff8822;
+            border-radius:12px;padding:20px;text-align:center;">
+          <div style="font-size:28px;margin-bottom:10px">{icon}</div>
+          <div style="font-weight:700;color:#00ff88;font-size:13px;margin-bottom:6px">{title}</div>
+          <div style="font-size:11px;color:#445566;line-height:1.6">{desc}</div>
+        </div>''', unsafe_allow_html=True)
 
 
 def member_profile(member, portal_type):
