@@ -643,6 +643,7 @@ def _migrate_db(conn):
         "ALTER TABLE broker_calls ADD COLUMN analyst TEXT",
         "ALTER TABLE broker_calls ADD COLUMN status TEXT DEFAULT 'Active'",
         "ALTER TABLE broker_calls ADD COLUMN call_date TEXT",
+        "ALTER TABLE videos ADD COLUMN visible_to TEXT DEFAULT 'all'",
     ]
     for sql in add_cols:
         try:
@@ -729,8 +730,9 @@ def init_db():
     _ct("""CREATE TABLE IF NOT EXISTS videos (
         id SERIAL PRIMARY KEY, title TEXT NOT NULL,
         category TEXT, description TEXT,
-        embed_code TEXT,
-        duration TEXT, posted_date TEXT,
+        embed_code TEXT, duration TEXT,
+        posted_date TEXT,
+        visible_to TEXT DEFAULT 'all',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
     # Research reports — PDF stored as BYTEA/BLOB, rendered inline (no download)
     _ct("""CREATE TABLE IF NOT EXISTS research_reports (
@@ -2539,12 +2541,23 @@ def admin_videos():
         with st.form("vid_form"):
             c1, c2 = st.columns(2)
             with c1:
-                title     = st.text_input("Title *")
-                category  = st.selectbox("Category",["GEX Education","Options Strategy","Equity Analysis","Market Overview","ESG/Valuation","Live Session","Other"])
-                duration  = st.text_input("Duration", placeholder="12:35")
+                title       = st.text_input("Title *")
+                category    = st.selectbox("Category",["GEX Education","Options Strategy","Equity Analysis","Market Overview","ESG/Valuation","Live Session","Other"])
+                duration    = st.text_input("Duration", placeholder="12:35")
                 posted_date = st.date_input("Date", value=date.today())
             with c2:
                 description = st.text_area("Description", height=100)
+                visible_to  = st.selectbox("Visible To (Plan Access) *", [
+                    "all",
+                    "equity","options","adv_equity","adv_options","adv_combo",
+                ], format_func=lambda x: {
+                    "all":        "🌐 All active members",
+                    "equity":     "📈 Equity plans only",
+                    "options":    "⚡ Options plans only",
+                    "adv_equity": "🚀 Adv Equity plans only",
+                    "adv_options":"🔥 Adv Options plans only",
+                    "adv_combo":  "💎 Adv Combo only",
+                }.get(x, x))
             embed_code = st.text_area("Embed Code * (paste full <iframe> code here)", height=120,
                 placeholder='<iframe width="560" height="315" src="https://www.youtube.com/embed/..." frameborder="0" allowfullscreen></iframe>')
             if st.form_submit_button("Add to Library →", use_container_width=True):
@@ -2554,21 +2567,25 @@ def admin_videos():
                     st.error("Embed code must contain a valid <iframe> tag.")
                 else:
                     conn = get_conn()
-                    _exec(conn, "INSERT INTO videos (title,category,description,embed_code,duration,posted_date) VALUES(?,?,?,?,?,?)",
-                        (title, category, description, embed_code, duration, str(posted_date)))
+                    _exec(conn, "INSERT INTO videos (title,category,description,embed_code,duration,posted_date,visible_to) VALUES(?,?,?,?,?,?,?)",
+                        (title, category, description, embed_code, duration, str(posted_date), visible_to))
                     conn.commit(); close_conn(conn)
-                    st.success(f"✅ '{title}' added.")
+                    st.success(f"✅ '{title}' added — visible to: {visible_to}.")
 
     with tab2:
         conn = get_conn()
         cat_f = st.selectbox("Filter",["All","GEX Education","Options Strategy","Equity Analysis","Market Overview","Live Session"])
         rows  = _fetchall(_exec(conn, "SELECT * FROM videos"+(f" WHERE category=?" if cat_f!="All" else "")+" ORDER BY created_at DESC",(cat_f,) if cat_f!="All" else ()))
         close_conn(conn)
+        ACCESS_LABELS = {
+            "all": "🌐 All members", "equity": "📈 Equity", "options": "⚡ Options",
+            "adv_equity": "🚀 Adv Equity", "adv_options": "🔥 Adv Options", "adv_combo": "💎 Adv Combo",
+        }
         for r in rows:
-            with st.expander(f"[{r['category']}] {r['title']} — {r['posted_date']}"):
-                st.markdown(f"**Description:** {r['description'] or '—'}")
-                st.markdown(f"**Duration:** {r['duration'] or '—'}")
-                # Preview embed
+            vis = r.get("visible_to","all") or "all"
+            badge = ACCESS_LABELS.get(vis, vis)
+            with st.expander(f"[{r['category']}] {r['title']} — {r['posted_date']} | {badge}"):
+                st.markdown(f"**Description:** {r['description'] or '—'} &nbsp;|&nbsp; **Duration:** {r['duration'] or '—'} &nbsp;|&nbsp; **Access:** `{vis}`")
                 if r['embed_code']:
                     safe = r['embed_code'].replace('width="560"','width="100%"').replace("width='560'","width='100%'")
                     st.markdown(f'<div class="video-embed-wrap">{safe}</div>', unsafe_allow_html=True)
@@ -3107,9 +3124,24 @@ def member_videos(member):
     st.markdown('<div class="section-sub">Premium educational videos — embedded, view-only</div>', unsafe_allow_html=True)
     conn = get_conn()
     cat_f = st.selectbox("Browse by Category",["All","GEX Education","Options Strategy","Equity Analysis","Market Overview","ESG/Valuation","Live Session","Other"])
-    rows  = _fetchall(_exec(conn, "SELECT * FROM videos"+(f" WHERE category=?" if cat_f!="All" else "")+" ORDER BY created_at DESC",(cat_f,) if cat_f!="All" else ()))
+    # Determine what portal types this member can access
+    member_plan   = member.get("plan", "")
+    member_access = PLAN_ACCESS.get(member_plan, [])
+
+    # Build visible_to filter — show 'all' videos + any matching the member's portals
+    allowed_vals = ["all"] + member_access  # e.g. ["all","equity","adv_equity"]
+    placeholders = ",".join(["?" for _ in allowed_vals])
+
+    if cat_f != "All":
+        q      = f"SELECT * FROM videos WHERE category=? AND COALESCE(visible_to,'all') IN ({placeholders}) ORDER BY created_at DESC"
+        params = tuple([cat_f] + allowed_vals)
+    else:
+        q      = f"SELECT * FROM videos WHERE COALESCE(visible_to,'all') IN ({placeholders}) ORDER BY created_at DESC"
+        params = tuple(allowed_vals)
+
+    rows = _fetchall(_exec(conn, q, params))
     close_conn(conn)
-    if not rows: st.info("No videos in this category yet."); return
+    if not rows: st.info("No videos available for your plan yet."); return
 
     if cat_f == "All":
         from collections import defaultdict
