@@ -1583,8 +1583,8 @@ def select_portal():
 
     # Six portal cards — 2 rows of 3
     card_data = [
-        ("⚙️","ADMIN","Command Centre","Dr. Niyas N · Restricted","#3b1f6b","#7c3aed","#a855f7",
-         ["Post equity & options calls","Manage premium members","Research & broker reports","Video library management","Client subscriptions & expiry"],"admin"),
+        ("🚫","ADMIN","Command Centre","Dr. Niyas N · Restricted","#3b1f6b","#7c3aed","#a855f7",
+         [],"admin"),
         ("📈","EQUITY","Equity Portal","Equity subscribers","#1a3a1a","#00ffb4","#00ffb4",
          ["Live equity trading calls","Equity research reports","Broker buy/sell calls","Market updates feed","Verified track record"],"equity"),
         ("⚡","OPTIONS","Options & GEX","Options subscribers","#1a1a3a","#7b61ff","#a855f7",
