@@ -2714,15 +2714,72 @@ def admin_videos():
             "adv_equity": "🚀 Adv Equity", "adv_options": "🔥 Adv Options", "adv_combo": "💎 Adv Combo",
         }
         for r in rows:
-            vis = r.get("visible_to","all") or "all"
+            vis   = r.get("visible_to","all") or "all"
             badge = ACCESS_LABELS.get(vis, vis)
             with st.expander(f"[{r['category']}] {r['title']} — {r['posted_date']} | {badge}"):
-                st.markdown(f"**Description:** {r['description'] or '—'} &nbsp;|&nbsp; **Duration:** {r['duration'] or '—'} &nbsp;|&nbsp; **Access:** `{vis}`")
+
+                # ── View / preview ────────────────────────────────────
                 if r['embed_code']:
                     safe = r['embed_code'].replace('width="560"','width="100%"').replace("width='560'","width='100%'")
                     st.markdown(f'<div class="video-embed-wrap">{safe}</div>', unsafe_allow_html=True)
-                if st.button("🗑️ Delete", key=f"dv_{r['id']}"):
-                    conn2 = get_conn(); _exec(conn2, "DELETE FROM videos WHERE id=?", (r['id'],)); conn2.commit(); close_conn(conn2); st.rerun()
+
+                # ── Action buttons ────────────────────────────────────
+                act1, act2, act3 = st.columns([1, 1, 6])
+                edit_key = f"vid_edit_mode_{r['id']}"
+                if act1.button("✏️ Edit", key=f"ve_{r['id']}"):
+                    st.session_state[edit_key] = not st.session_state.get(edit_key, False)
+                    st.rerun()
+                if act2.button("🗑️ Delete", key=f"dv_{r['id']}"):
+                    conn2 = get_conn()
+                    _exec(conn2, "DELETE FROM videos WHERE id=?", (r['id'],))
+                    conn2.commit(); close_conn(conn2); st.rerun()
+
+                # ── Edit form (toggle) ────────────────────────────────
+                if st.session_state.get(edit_key, False):
+                    st.divider()
+                    st.markdown("##### ✏️ Edit Video")
+                    with st.form(f"vid_edit_form_{r['id']}"):
+                        ec1, ec2 = st.columns(2)
+                        with ec1:
+                            new_title    = st.text_input("Title", value=r['title'] or "")
+                            new_category = st.selectbox("Category",
+                                ["GEX Education","Options Strategy","Equity Analysis","Market Overview","ESG/Valuation","Live Session","Other"],
+                                index=["GEX Education","Options Strategy","Equity Analysis","Market Overview","ESG/Valuation","Live Session","Other"].index(r['category']) if r['category'] in ["GEX Education","Options Strategy","Equity Analysis","Market Overview","ESG/Valuation","Live Session","Other"] else 0)
+                            new_duration = st.text_input("Duration", value=r['duration'] or "")
+                            try:
+                                pd_val = date.fromisoformat(str(r['posted_date'])) if r['posted_date'] else date.today()
+                            except:
+                                pd_val = date.today()
+                            new_date = st.date_input("Date", value=pd_val)
+                        with ec2:
+                            new_desc = st.text_area("Description", value=r['description'] or "", height=80)
+                            vis_opts = ["all","equity","options","adv_equity","adv_options","adv_combo"]
+                            vis_idx  = vis_opts.index(vis) if vis in vis_opts else 0
+                            new_vis  = st.selectbox("Visible To", vis_opts,
+                                index=vis_idx,
+                                format_func=lambda x: {
+                                    "all":"🌐 All","equity":"📈 Equity","options":"⚡ Options",
+                                    "adv_equity":"🚀 Adv Equity","adv_options":"🔥 Adv Options","adv_combo":"💎 Adv Combo"
+                                }.get(x,x))
+                        new_embed = st.text_area("Embed Code", value=r['embed_code'] or "", height=80)
+                        sv1, sv2 = st.columns(2)
+                        if sv1.form_submit_button("💾 Save Changes", use_container_width=True, type="primary"):
+                            if not new_title:
+                                st.error("Title is required.")
+                            else:
+                                conn3 = get_conn()
+                                _exec(conn3,
+                                    "UPDATE videos SET title=?,category=?,description=?,embed_code=?,duration=?,posted_date=?,visible_to=? WHERE id=?",
+                                    (new_title, new_category, new_desc, new_embed, new_duration, str(new_date), new_vis, r['id']))
+                                conn3.commit(); close_conn(conn3)
+                                st.session_state.pop(edit_key, None)
+                                st.success("✅ Video updated!")
+                                st.rerun()
+                        if sv2.form_submit_button("Cancel", use_container_width=True):
+                            st.session_state.pop(edit_key, None)
+                            st.rerun()
+                else:
+                    st.markdown(f'<div style="font-size:12px;color:#445566;margin-top:4px">Description: {r['description'] or '—'} &nbsp;·&nbsp; Duration: {r['duration'] or '—'} &nbsp;·&nbsp; Access: {badge}</div>', unsafe_allow_html=True)
 
 
 def admin_clients():
@@ -3260,19 +3317,17 @@ def member_videos(member):
     member_plan   = member.get("plan", "")
     member_access = PLAN_ACCESS.get(member_plan, [])
 
-    # Build visible_to filter — show 'all' videos + any matching the member's portals
-    allowed_vals = ["all"] + member_access  # e.g. ["all","equity","adv_equity"]
-    placeholders = ",".join(["?" for _ in allowed_vals])
-
+    # Fetch all videos then filter in Python — avoids IN clause translation issues
     if cat_f != "All":
-        q      = f"SELECT * FROM videos WHERE category=? AND COALESCE(visible_to,'all') IN ({placeholders}) ORDER BY created_at DESC"
-        params = tuple([cat_f] + allowed_vals)
+        all_rows = _fetchall(_exec(conn, "SELECT * FROM videos WHERE category=? ORDER BY created_at DESC", (cat_f,)))
     else:
-        q      = f"SELECT * FROM videos WHERE COALESCE(visible_to,'all') IN ({placeholders}) ORDER BY created_at DESC"
-        params = tuple(allowed_vals)
-
-    rows = _fetchall(_exec(conn, q, params))
+        all_rows = _fetchall(_exec(conn, "SELECT * FROM videos ORDER BY created_at DESC"))
     close_conn(conn)
+
+    # Filter by member access in Python
+    allowed_vals = set(["all"] + member_access)
+    rows = [r for r in all_rows if (r.get("visible_to") or "all") in allowed_vals]
+
     if not rows: st.info("No videos available for your plan yet."); return
 
     if cat_f == "All":
@@ -3460,133 +3515,82 @@ def sidebar_member_info(member, accent="#a855f7"):
 # ══════════════════════════════════════════════════════════════════════
 
 def top_nav(pages, accent="#a855f7", logo=True, member=None, portal_label="", db_status=False):
-    """
-    Renders a sticky top navigation bar replacing the sidebar.
-    Returns the selected page name.
-    Uses st.session_state to persist selection.
-    """
-    nav_key = f"topnav_{portal_label}"
-    if nav_key not in st.session_state:
-        st.session_state[nav_key] = pages[0]
+    """Top navigation bar — replaces sidebar. Returns selected page."""
+    nav_key = f"tnav__{portal_label}"
+    if nav_key not in st.session_state or st.session_state[nav_key] not in (pages or [nav_key]):
+        st.session_state[nav_key] = pages[0] if pages else ""
 
-    # ── Build nav HTML ──
-    logo_html = f'''<img src="{NYZTRADE_LOGO_SRC}"
-        style="height:28px;width:auto;border-radius:6px;margin-right:10px;vertical-align:middle;">''' if logo else ""
+    # ── Row 1: branding + member info ────────────────────────────────
+    col_logo, col_info = st.columns([3, 5])
+    with col_logo:
+        name_txt = ""
+        if member:
+            exp = member.get("expiry_date")
+            dl  = None
+            if exp:
+                try: dl = (date.fromisoformat(str(exp)) - date.today()).days
+                except: pass
+            dl_color = "#ff6b6b" if dl is not None and dl <= 3 else "#ffd700" if dl is not None and dl <= 7 else "#00ffb4"
+            dl_text  = f"{dl}d left" if dl is not None and dl > 0 else "EXPIRED" if dl is not None else "Active"
+            name_txt = f'{member.get("name","")} · <span style="color:{dl_color};font-weight:600">{dl_text}</span>'
+        st.markdown(
+            f'<div style="display:flex;align-items:center;gap:10px;padding:8px 0 4px">' +
+            (f'<img src="{NYZTRADE_LOGO_SRC}" style="height:28px;border-radius:6px;">' if logo else "") +
+            f'<span style="font-size:9px;color:#4b3a6b;letter-spacing:3px;text-transform:uppercase;">{portal_label}</span></div>',
+            unsafe_allow_html=True
+        )
+    with col_info:
+        if member and name_txt:
+            st.markdown(
+                f'<div style="text-align:right;padding:10px 0 4px;font-size:12px;color:#9d8ab5">{name_txt}</div>',
+                unsafe_allow_html=True
+            )
 
-    member_html = ""
-    if member:
-        exp = member.get("expiry_date")
-        dl = None
-        if exp:
-            try: dl = (date.fromisoformat(str(exp)) - date.today()).days
-            except: pass
-        dl_color = "#ff6b6b" if dl is not None and dl <= 3 else "#ffd700" if dl is not None and dl <= 7 else "#00ffb4"
-        dl_text  = f"{dl}d left" if dl is not None and dl > 0 else "EXPIRED" if dl is not None else "Active"
-        member_html = f'''
-        <span style="font-size:11px;color:#9d8ab5;margin-right:8px;display:inline-block;vertical-align:middle;">
-          {member.get("name","")}&nbsp;·&nbsp;
-          <span style="color:{dl_color};font-weight:600">{dl_text}</span>
-        </span>'''
+    # ── Row 2: navigation buttons ─────────────────────────────────────
+    if not pages:
+        st.divider()
+        return ""
 
-    st.markdown(f'''
-    <style>
-    #topnav-bar {{
-        position:sticky;top:0;z-index:9999;
-        background:linear-gradient(90deg,#0f0a1e,#0a0715);
-        border-bottom:1px solid #2d1f4e;
-        padding:0 16px;
-        display:flex;align-items:center;
-        min-height:52px;
-        flex-wrap:wrap;
-        gap:0;
-    }}
-    .topnav-logo-area {{
-        display:flex;align-items:center;
-        padding:8px 0;
-        margin-right:8px;
-        flex-shrink:0;
-    }}
-    .topnav-portal-label {{
-        font-size:9px;color:#4b3a6b;
-        letter-spacing:3px;text-transform:uppercase;
-        margin-left:6px;
-    }}
-    .topnav-pages {{
-        display:flex;align-items:center;
-        gap:2px;
-        flex:1;
-        overflow-x:auto;
-        scrollbar-width:none;
-        -ms-overflow-style:none;
-        padding:6px 0;
-    }}
-    .topnav-pages::-webkit-scrollbar {{ display:none; }}
-    .topnav-btn {{
-        background:transparent;
-        border:none;
-        color:#6b5a8a;
-        font-size:12px;
-        padding:6px 12px;
-        border-radius:20px;
-        cursor:pointer;
-        white-space:nowrap;
-        font-family:'DM Sans',sans-serif;
-        transition:all 0.15s;
-        flex-shrink:0;
-    }}
-    .topnav-btn:hover {{ background:#2d1f4e44;color:#e2d9f3; }}
-    .topnav-btn.active {{
-        background:{accent}22;
-        color:{accent};
-        border:1px solid {accent}44;
-        font-weight:600;
-    }}
-    .topnav-right {{
-        display:flex;align-items:center;
-        margin-left:auto;
-        padding:6px 0;
-        flex-shrink:0;
-    }}
-    </style>
-    <div id="topnav-bar">
-      <div class="topnav-logo-area">
-        {logo_html}
-        <span class="topnav-portal-label">{portal_label}</span>
-      </div>
-      <div class="topnav-pages" id="topnav-pages">
-      </div>
-      <div class="topnav-right">
-        {member_html}
-      </div>
-    </div>
-    ''', unsafe_allow_html=True)
-
-    # ── Render actual nav buttons as st.columns ──
-    # We use a horizontal button group in the main area
-    n = len(pages)
-    btn_cols = st.columns(n + 2)  # +2 for logo space and logout
+    # Use st.radio styled as a horizontal tab bar
     selected = st.session_state[nav_key]
 
-    for i, pg in enumerate(pages):
-        with btn_cols[i]:
-            is_active = (pg == selected)
-            btn_style = f"background:{accent}22;color:{accent};border:1px solid {accent}44;font-weight:700;" if is_active else "color:#6b5a8a;"
-            if st.button(pg, key=f"tnav_{portal_label}_{i}",
-                         use_container_width=True,
-                         help=pg):
-                st.session_state[nav_key] = pg
-                st.rerun()
+    # Build columns: one per page + logout
+    all_items = pages + ["🚪 Logout"]
+    cols = st.columns(len(all_items))
+    for i, pg in enumerate(all_items):
+        with cols[i]:
+            is_logout = pg == "🚪 Logout"
+            is_active = (pg == selected) and not is_logout
+            btn_color = accent if is_active else "#ff6b6b" if is_logout else "#3d2d5a"
+            label_color = accent if is_active else "#ff6b6b" if is_logout else "#6b5a8a"
+            border = f"1px solid {accent}55" if is_active else "1px solid #2d1f4e"
+            bg = f"{accent}18" if is_active else "transparent"
+            st.markdown(
+                f'<div style="text-align:center;border-bottom:2px solid {accent if is_active else "transparent"};"' +
+                f'padding:2px 0;margin-bottom:2px"></div>',
+                unsafe_allow_html=True
+            )
+            if st.button(
+                pg,
+                key=f"tnav_{portal_label}_{i}",
+                use_container_width=True,
+                type="secondary"
+            ):
+                if is_logout:
+                    _clear_session()
+                    st.session_state.clear()
+                    st.rerun()
+                else:
+                    st.session_state[nav_key] = pg
+                    st.rerun()
 
-    with btn_cols[n]:
-        st.write("")
-    with btn_cols[n+1]:
-        if st.button("🚪", key=f"tnav_logout_{portal_label}", help="Logout"):
-            _clear_session()
-            st.session_state.clear()
-            st.rerun()
+    st.divider()
 
     if db_status:
-        st.markdown(f'<div style="font-size:9px;color:#2d1f4e;text-align:right;margin-top:-8px;padding-right:8px">{_DB_STATUS}</div>', unsafe_allow_html=True)
+        st.markdown(
+            f'<div style="font-size:9px;color:#2d1f4e;margin-top:-12px;margin-bottom:8px">{_DB_STATUS}</div>',
+            unsafe_allow_html=True
+        )
 
     return st.session_state[nav_key]
 
