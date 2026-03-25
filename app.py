@@ -1272,7 +1272,9 @@ def render_report_meta(r):
         items = "".join(f'<div style="font-size:13px;color:#f0c8c8;padding:3px 0;border-left:2px solid #ff6b6b;padding-left:10px;margin-bottom:4px">⚠️ {n}</div>' for n in negatives)
         neg_html = f'<div style="margin-top:12px"><div style="font-size:10px;color:#ff6b6b;text-transform:uppercase;letter-spacing:2px;font-weight:700;margin-bottom:8px">Key Risks</div>{items}</div>'
 
-    summary_html = f'<div style="margin-top:12px;font-size:13px;color:#d4c8e8;line-height:1.7">{summary}</div>' if summary else ""
+    import re as _re
+    summary_clean = _re.sub(r'<[^>]+>', '', summary).strip() if summary else ""
+    summary_html = f'<div style="margin-top:12px;font-size:13px;color:#d4c8e8;line-height:1.7">{summary_clean}</div>' if summary_clean else ""
 
     # ── Stock picks table (for multi-stock reports) ──────────────────────
     stock_picks_html = ""
@@ -1330,7 +1332,15 @@ def render_report_meta(r):
 
     cmp_str    = f"₹{r['current_price']}" if r.get("current_price") else "—"
     target_str = f"₹{r['target_price']}"  if r.get("target_price")  else "—"
-    analyst_html = f'<div style="font-size:11px;color:#e2d9f3;margin-top:3px">Analyst: {r["analyst"]}</div>' if r.get("analyst") else ""
+    # Escape any stray HTML in text fields
+    def _esc(v): return str(v or "").replace("<","&lt;").replace(">","&gt;") if v else ""
+    safe_broker  = _esc(r.get("broker_house")) or "—"
+    safe_date    = _esc(r.get("report_date")) or ""
+    safe_sector  = _esc(r.get("sector")) or ""
+    safe_category= _esc(r.get("category")) or ""
+    safe_symbol  = _esc(r.get("symbol")) or "—"
+    safe_analyst = _esc(r.get("analyst")) or ""
+    analyst_html = f'<div style="font-size:11px;color:#e2d9f3;margin-top:3px">Analyst: {safe_analyst}</div>' if safe_analyst else ""
 
     st.markdown(f"""
     <div class="report-card">
@@ -1339,16 +1349,16 @@ def render_report_meta(r):
 
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:14px">
         <div>
-          <div style="font-size:22px;font-weight:800;color:#fff">{r.get("symbol") or "—"}
+          <div style="font-size:22px;font-weight:800;color:#fff">{safe_symbol}
             <span style="background:{ct_color}22;color:{ct_color};border:1px solid {ct_color}55;
                   border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700;
                   margin-left:10px;letter-spacing:1px;text-transform:uppercase;vertical-align:middle">{r.get("call_type") or "—"}</span>
           </div>
-          <div style="font-size:12px;color:#c084fc;margin-top:4px">{r.get("sector") or ""} &nbsp;·&nbsp; {r.get("category") or ""}</div>
+          <div style="font-size:12px;color:#c084fc;margin-top:4px">{safe_sector} &nbsp;·&nbsp; {safe_category}</div>
         </div>
         <div style="text-align:right">
-          <div style="font-size:13px;font-weight:700;color:#c084fc">{r.get("broker_house") or "—"}</div>
-          <div style="font-size:11px;color:#a0b4c8;margin-top:4px">{r.get("report_date") or ""}</div>
+          <div style="font-size:13px;font-weight:700;color:#c084fc">{safe_broker}</div>
+          <div style="font-size:11px;color:#a0b4c8;margin-top:4px">{safe_date}</div>
           {analyst_html}
         </div>
       </div>
