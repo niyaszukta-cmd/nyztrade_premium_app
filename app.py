@@ -21,7 +21,7 @@ NYZTRADE_LOGO_SRC = "data:image/jpeg;base64," + NYZTRADE_LOGO_B64
 
 # Groq API base
 GROQ_API_BASE = "https://api.groq.com/openai/v1"
-GROQ_API_KEY  = "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"
+GROQ_API_KEY  = "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"
 
 # ══════════════════════════════════════════════════════════════════════
 # CONFIGURATION
