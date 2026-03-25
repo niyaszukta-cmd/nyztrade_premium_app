@@ -106,7 +106,7 @@ st.set_page_config(
     page_title="Nyztrade Premium",
     page_icon="📈",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 # ══════════════════════════════════════════════════════════════════════
@@ -129,17 +129,17 @@ html, body, [class*="css"] { font-family: 'DM Sans', sans-serif !important; }
 #MainMenu, footer, header { visibility: hidden; height: 0; }
 .stDeployButton { display: none; }
 
-/* ── SIDEBAR ── */
-[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #0f0a1e 0%, #0a0715 100%) !important;
-    border-right: 1px solid #2d1f4e !important;
-    min-width: 220px !important;
+/* ── SIDEBAR — hidden, navigation moved to top bar ── */
+[data-testid="stSidebar"],
+[data-testid="stSidebarCollapsedControl"] {
+    display: none !important;
 }
 
 /* ── MAIN CONTENT PADDING (mobile-safe) ── */
 .block-container {
-    padding: 1rem 1rem 2rem 1rem !important;
+    padding: 0.5rem 1rem 2rem 1rem !important;
     max-width: 100% !important;
+    margin-left: 0 !important;
 }
 @media (min-width: 768px) {
     .block-container { padding: 1.5rem 2rem 3rem 2rem !important; }
@@ -244,13 +244,7 @@ input, textarea, select {
     font-size: 16px !important;         /* iOS no-zoom rule */
 }
 
-/* ── RADIO (sidebar nav) ── */
-[data-testid="stRadio"] > div { gap: 2px !important; }
-[data-testid="stRadio"] label {
-    font-size: 14px !important; padding: 8px 6px !important;
-    border-radius: 8px !important; cursor: pointer;
-}
-[data-testid="stRadio"] label:hover { background: #1a0f30 !important; }
+
 
 /* ── EXPANDER ── */
 [data-testid="stExpander"] {
@@ -275,7 +269,7 @@ input, textarea, select {
 
 /* ── MOBILE: sidebar & toggle ── */
 @media (max-width: 767px) {
-    [data-testid="stSidebar"] { min-width: 0 !important; }
+
     .block-container { padding: 0.75rem !important; }
     .section-header { font-size: 20px !important; }
     .metric-value { font-size: 22px !important; }
@@ -305,6 +299,15 @@ input, textarea, select {
 [data-testid="stSidebarCollapsedControl"] svg {
     color: #a855f7 !important;
     fill: #a855f7 !important;
+}
+
+/* ── MOBILE ── */
+@media (max-width: 767px) {
+    .block-container { padding: 0.5rem !important; }
+    .section-header { font-size: 18px !important; }
+    .metric-value { font-size: 20px !important; }
+    .call-card { padding: 10px !important; }
+    .topnav-btn { font-size: 11px !important; padding: 5px 8px !important; }
 }
 
 /* ── SCROLLBAR ── */
@@ -3417,6 +3420,9 @@ def member_profile(member, portal_type):
 # ══════════════════════════════════════════════════════════════════════
 
 def sidebar_member_info(member, accent="#a855f7"):
+    """No-op — member info shown in top_nav bar instead."""
+    pass
+    return
     exp = date.fromisoformat(member['expiry_date']) if member.get('expiry_date') else None
     dl  = (exp - date.today()).days if exp else None
     # Color and icon based on days left
@@ -3453,6 +3459,138 @@ def sidebar_member_info(member, accent="#a855f7"):
 # MAIN ROUTER
 # ══════════════════════════════════════════════════════════════════════
 
+def top_nav(pages, accent="#a855f7", logo=True, member=None, portal_label="", db_status=False):
+    """
+    Renders a sticky top navigation bar replacing the sidebar.
+    Returns the selected page name.
+    Uses st.session_state to persist selection.
+    """
+    nav_key = f"topnav_{portal_label}"
+    if nav_key not in st.session_state:
+        st.session_state[nav_key] = pages[0]
+
+    # ── Build nav HTML ──
+    logo_html = f'''<img src="{NYZTRADE_LOGO_SRC}"
+        style="height:28px;width:auto;border-radius:6px;margin-right:10px;vertical-align:middle;">''' if logo else ""
+
+    member_html = ""
+    if member:
+        exp = member.get("expiry_date")
+        dl = None
+        if exp:
+            try: dl = (date.fromisoformat(str(exp)) - date.today()).days
+            except: pass
+        dl_color = "#ff6b6b" if dl is not None and dl <= 3 else "#ffd700" if dl is not None and dl <= 7 else "#00ffb4"
+        dl_text  = f"{dl}d left" if dl is not None and dl > 0 else "EXPIRED" if dl is not None else "Active"
+        member_html = f'''
+        <span style="font-size:11px;color:#9d8ab5;margin-right:8px;display:inline-block;vertical-align:middle;">
+          {member.get("name","")}&nbsp;·&nbsp;
+          <span style="color:{dl_color};font-weight:600">{dl_text}</span>
+        </span>'''
+
+    st.markdown(f'''
+    <style>
+    #topnav-bar {{
+        position:sticky;top:0;z-index:9999;
+        background:linear-gradient(90deg,#0f0a1e,#0a0715);
+        border-bottom:1px solid #2d1f4e;
+        padding:0 16px;
+        display:flex;align-items:center;
+        min-height:52px;
+        flex-wrap:wrap;
+        gap:0;
+    }}
+    .topnav-logo-area {{
+        display:flex;align-items:center;
+        padding:8px 0;
+        margin-right:8px;
+        flex-shrink:0;
+    }}
+    .topnav-portal-label {{
+        font-size:9px;color:#4b3a6b;
+        letter-spacing:3px;text-transform:uppercase;
+        margin-left:6px;
+    }}
+    .topnav-pages {{
+        display:flex;align-items:center;
+        gap:2px;
+        flex:1;
+        overflow-x:auto;
+        scrollbar-width:none;
+        -ms-overflow-style:none;
+        padding:6px 0;
+    }}
+    .topnav-pages::-webkit-scrollbar {{ display:none; }}
+    .topnav-btn {{
+        background:transparent;
+        border:none;
+        color:#6b5a8a;
+        font-size:12px;
+        padding:6px 12px;
+        border-radius:20px;
+        cursor:pointer;
+        white-space:nowrap;
+        font-family:'DM Sans',sans-serif;
+        transition:all 0.15s;
+        flex-shrink:0;
+    }}
+    .topnav-btn:hover {{ background:#2d1f4e44;color:#e2d9f3; }}
+    .topnav-btn.active {{
+        background:{accent}22;
+        color:{accent};
+        border:1px solid {accent}44;
+        font-weight:600;
+    }}
+    .topnav-right {{
+        display:flex;align-items:center;
+        margin-left:auto;
+        padding:6px 0;
+        flex-shrink:0;
+    }}
+    </style>
+    <div id="topnav-bar">
+      <div class="topnav-logo-area">
+        {logo_html}
+        <span class="topnav-portal-label">{portal_label}</span>
+      </div>
+      <div class="topnav-pages" id="topnav-pages">
+      </div>
+      <div class="topnav-right">
+        {member_html}
+      </div>
+    </div>
+    ''', unsafe_allow_html=True)
+
+    # ── Render actual nav buttons as st.columns ──
+    # We use a horizontal button group in the main area
+    n = len(pages)
+    btn_cols = st.columns(n + 2)  # +2 for logo space and logout
+    selected = st.session_state[nav_key]
+
+    for i, pg in enumerate(pages):
+        with btn_cols[i]:
+            is_active = (pg == selected)
+            btn_style = f"background:{accent}22;color:{accent};border:1px solid {accent}44;font-weight:700;" if is_active else "color:#6b5a8a;"
+            if st.button(pg, key=f"tnav_{portal_label}_{i}",
+                         use_container_width=True,
+                         help=pg):
+                st.session_state[nav_key] = pg
+                st.rerun()
+
+    with btn_cols[n]:
+        st.write("")
+    with btn_cols[n+1]:
+        if st.button("🚪", key=f"tnav_logout_{portal_label}", help="Logout"):
+            _clear_session()
+            st.session_state.clear()
+            st.rerun()
+
+    if db_status:
+        st.markdown(f'<div style="font-size:9px;color:#2d1f4e;text-align:right;margin-top:-8px;padding-right:8px">{_DB_STATUS}</div>', unsafe_allow_html=True)
+
+    return st.session_state[nav_key]
+
+
 def main():
     # Load persisted session from disk (no-op if already loaded this run)
     _load_session()
@@ -3474,24 +3612,11 @@ def main():
         if not st.session_state.get("admin_logged_in"):
             admin_login(); return
 
-        with st.sidebar:
-            st.markdown(f'''<div style="text-align:center;padding:14px 8px 4px;">
-              <img src="{NYZTRADE_LOGO_SRC}" style="width:110px;height:auto;border-radius:8px;margin-bottom:4px;" alt="NYZTrade">
-              <div style="font-size:9px;color:#4b3a6b;letter-spacing:3px;text-transform:uppercase;margin-top:2px;">Command Centre</div>
-            </div>''', unsafe_allow_html=True)
-            st.divider()
-            page = st.radio("", [
-                "🏠 Dashboard","📊 Equity Calls","⚡ Options & GEX",
-                "📄 Research & Broker","🎬 Video Library",
-                "👥 Client Management",
-            ], label_visibility="collapsed")
-            st.divider()
-            if st.button("🚪 Logout", use_container_width=True):
-                _clear_session()
-                st.session_state.clear()
-                st.rerun()
-            st.markdown('<div style="font-size:11px;color:#445566;text-align:center">Dr. Niyas N | Admin</div>', unsafe_allow_html=True)
-            st.markdown(f'<div style="font-size:10px;text-align:center;margin-top:4px;padding:4px 8px;border-radius:6px;background:#0a0715">{_DB_STATUS}</div>', unsafe_allow_html=True)
+        page = top_nav(
+            ["🏠 Dashboard","📊 Equity Calls","⚡ Options & GEX",
+             "📄 Research & Broker","🎬 Video Library","👥 Client Management"],
+            accent="#a855f7", portal_label="Command Centre", db_status=True
+        )
 
         _save_session()
         pages = {
@@ -3521,24 +3646,13 @@ def main():
             st.session_state.pop("member", None)
             portal_login("equity"); return
 
-        with st.sidebar:
-            st.markdown(f'''<div style="text-align:center;padding:14px 8px 4px;">
-              <img src="{NYZTRADE_LOGO_SRC}" style="width:110px;height:auto;border-radius:8px;margin-bottom:4px;border:1px solid #00ffb422;" alt="NYZTrade">
-              <div style="font-size:9px;color:#4b3a6b;letter-spacing:3px;text-transform:uppercase;margin-top:2px;">Equity Portal</div>
-            </div>''', unsafe_allow_html=True)
-            st.divider()
-            sidebar_member_info(member, "#00ffb4")
-            page = st.radio("", [
-                "🏠 Home","📊 Active Calls","📈 Track Record",
-                "📄 Research Hub","🎬 Video Library","👤 My Profile",
-            ], label_visibility="collapsed")
-            st.divider()
-            if st.button("🚪 Logout", use_container_width=True):
-                _clear_session()
-                st.session_state.clear()
-                st.rerun()
-
         _save_session()
+        sidebar_member_info(member, "#00ffb4")
+        page = top_nav(
+            ["🏠 Home","📊 Active Calls","📈 Track Record",
+             "📄 Research Hub","🎬 Video Library","👤 My Profile"],
+            accent="#00ffb4", portal_label="Equity Portal", member=member
+        )
         # Mobile bottom tabs override sidebar selection
         page = bottom_tabs([
             ("🏠","Home","🏠 Home"),("📊","Calls","📊 Active Calls"),
@@ -3595,29 +3709,12 @@ def main():
             st.session_state.pop("member", None)
             portal_login("options"); return
 
-        with st.sidebar:
-            st.markdown(f'''<div style="text-align:center;padding:14px 8px 4px;">
-              <img src="{NYZTRADE_LOGO_SRC}" style="width:110px;height:auto;border-radius:8px;margin-bottom:4px;border:1px solid #7b61ff22;" alt="NYZTrade">
-              <div style="font-size:9px;color:#4b3a6b;letter-spacing:3px;text-transform:uppercase;margin-top:2px;">Options Portal</div>
-            </div>''', unsafe_allow_html=True)
-            st.divider()
-            sidebar_member_info(member, "#7b61ff")
-            page = st.radio("", [
-                "🏠 Home","⚡ Active Calls","📊 GEX Analysis","📈 Track Record",
-                "📄 Research Hub","🎬 Video Library","👤 My Profile",
-            ], label_visibility="collapsed")
-            st.divider()
-            if st.button("🚪 Logout", use_container_width=True):
-                _clear_session()
-                st.session_state.clear()
-                st.rerun()
-
         _save_session()
-        page = bottom_tabs([
-            ("🏠","Home","🏠 Home"),("⚡","Calls","⚡ Active Calls"),
-            ("📊","GEX","📊 GEX Analysis"),("📈","Record","📈 Track Record"),
-            ("📄","Research","📄 Research Hub"),("🎬","Videos","🎬 Video Library"),
-        ], key="op", accent="#7b61ff") or page
+        sidebar_member_info(member, "#7b61ff")
+        page = top_nav(
+            ["🏠 Home","⚡ Active Calls","📊 GEX Analysis","📈 Track Record","📄 Research Hub","🎬 Video Library","👤 My Profile"],
+            accent="#7b61ff", portal_label="Options Portal", member=member
+        )
         op_pages = {
             "🏠 Home":          options_home,
             "📊 GEX Analysis":  options_gex_analysis,
@@ -3666,30 +3763,12 @@ def main():
             st.session_state.pop("member", None)
             portal_login("adv_equity"); return
 
-        with st.sidebar:
-            st.markdown(f'''<div style="text-align:center;padding:14px 8px 4px;">
-              <img src="{NYZTRADE_LOGO_SRC}" style="width:110px;height:auto;border-radius:8px;margin-bottom:4px;border:1px solid #00e5ff33;" alt="NYZTrade">
-              <div style="font-size:9px;color:#4b3a6b;letter-spacing:3px;text-transform:uppercase;margin-top:2px;">Advanced Equity</div>
-              <div style="display:inline-block;background:#00e5ff18;color:#00e5ff;border:1px solid #00e5ff44;border-radius:12px;padding:1px 8px;font-size:8px;font-weight:800;letter-spacing:2px;margin-top:3px;">PREMIUM</div>
-            </div>''', unsafe_allow_html=True)
-            st.divider()
-            sidebar_member_info(member, "#00e5ff")
-            page = st.radio("", [
-                "🏠 Home","📊 Active Calls","🚀 Advanced Calls","📈 Track Record",
-                "📄 Research Hub","🎬 Video Library","👤 My Profile",
-            ], label_visibility="collapsed")
-            st.divider()
-            if st.button("🚪 Logout", use_container_width=True):
-                _clear_session()
-                st.session_state.clear()
-                st.rerun()
-
         _save_session()
-        page = bottom_tabs([
-            ("🏠","Home","🏠 Home"),("📊","Calls","📊 Active Calls"),
-            ("🚀","Advanced","🚀 Advanced Calls"),("📈","Record","📈 Track Record"),
-            ("📄","Research","📄 Research Hub"),("🎬","Videos","🎬 Video Library"),
-        ], key="adveq", accent="#00e5ff") or page
+        sidebar_member_info(member, "#00e5ff")
+        page = top_nav(
+            ["🏠 Home","📊 Active Calls","🚀 Advanced Calls","📈 Track Record","📄 Research Hub","🎬 Video Library","👤 My Profile"],
+            accent="#00e5ff", portal_label="Advanced Equity", member=member
+        )
         adveq_pages = {
             "🏠 Home":           equity_home,
             "📊 Active Calls":   equity_home,
@@ -3733,30 +3812,12 @@ def main():
             st.session_state.pop("member", None)
             portal_login("adv_options"); return
 
-        with st.sidebar:
-            st.markdown(f'''<div style="text-align:center;padding:14px 8px 4px;">
-              <img src="{NYZTRADE_LOGO_SRC}" style="width:110px;height:auto;border-radius:8px;margin-bottom:4px;border:1px solid #ff6b3533;" alt="NYZTrade">
-              <div style="font-size:9px;color:#4b3a6b;letter-spacing:3px;text-transform:uppercase;margin-top:2px;">Advanced Options</div>
-              <div style="display:inline-block;background:#ff6b3518;color:#ff6b35;border:1px solid #ff6b3544;border-radius:12px;padding:1px 8px;font-size:8px;font-weight:800;letter-spacing:2px;margin-top:3px;">PREMIUM</div>
-            </div>''', unsafe_allow_html=True)
-            st.divider()
-            sidebar_member_info(member, "#ff6b35")
-            page = st.radio("", [
-                "🏠 Home","⚡ Active Calls","🔥 GEX & Gamma Blast","📊 GEX Analysis","📈 Track Record",
-                "📄 Research Hub","🎬 Video Library","👤 My Profile",
-            ], label_visibility="collapsed")
-            st.divider()
-            if st.button("🚪 Logout", use_container_width=True):
-                _clear_session()
-                st.session_state.clear()
-                st.rerun()
-
         _save_session()
-        page = bottom_tabs([
-            ("🏠","Home","🏠 Home"),("⚡","Calls","⚡ Active Calls"),
-            ("🔥","GEX","🔥 GEX & Gamma Blast"),("📊","Analysis","📊 GEX Analysis"),
-            ("📄","Research","📄 Research Hub"),("🎬","Videos","🎬 Video Library"),
-        ], key="advop", accent="#ff6b35") or page
+        sidebar_member_info(member, "#ff6b35")
+        page = top_nav(
+            ["🏠 Home","⚡ Active Calls","🔥 GEX & Gamma Blast","📊 GEX Analysis","📈 Track Record","📄 Research Hub","🎬 Video Library","👤 My Profile"],
+            accent="#ff6b35", portal_label="Advanced Options", member=member
+        )
         advop_pages = {
             "🏠 Home":              options_home,
             "⚡ Active Calls":      options_home,
@@ -3799,31 +3860,12 @@ def main():
             st.session_state.pop("member", None)
             portal_login("adv_combo"); return
 
-        with st.sidebar:
-            st.markdown(f'''<div style="text-align:center;padding:14px 8px 4px;">
-              <img src="{NYZTRADE_LOGO_SRC}" style="width:110px;height:auto;border-radius:8px;margin-bottom:4px;border:1px solid #c084fc33;" alt="NYZTrade">
-              <div style="font-size:9px;color:#4b3a6b;letter-spacing:3px;text-transform:uppercase;margin-top:2px;">Advanced Combo</div>
-              <div style="display:inline-block;background:#c084fc18;color:#c084fc;border:1px solid #c084fc44;border-radius:12px;padding:1px 8px;font-size:8px;font-weight:800;letter-spacing:2px;margin-top:3px;">ALL ACCESS</div>
-            </div>''', unsafe_allow_html=True)
-            st.divider()
-            sidebar_member_info(member, "#c084fc")
-            page = st.radio("", [
-                "🏠 Home","📊 Equity Calls","🚀 Adv Equity","⚡ Options Calls",
-                "🔥 GEX & Gamma Blast","📊 GEX Analysis","📈 Track Record",
-                "📄 Research Hub","🎬 Video Library","👤 My Profile",
-            ], label_visibility="collapsed")
-            st.divider()
-            if st.button("🚪 Logout", use_container_width=True):
-                _clear_session()
-                st.session_state.clear()
-                st.rerun()
-
         _save_session()
-        page = bottom_tabs([
-            ("🏠","Home","🏠 Home"),("📊","Equity","📊 Equity Calls"),
-            ("⚡","Options","⚡ Options Calls"),("🔥","GEX","🔥 GEX & Gamma Blast"),
-            ("📄","Research","📄 Research Hub"),("👤","Profile","👤 My Profile"),
-        ], key="advc", accent="#c084fc") or page
+        sidebar_member_info(member, "#c084fc")
+        page = top_nav(
+            ["🏠 Home","📊 Equity Calls","🚀 Adv Equity","⚡ Options Calls","🔥 GEX & Gamma Blast","📊 GEX Analysis","📈 Track Record","📄 Research Hub","🎬 Video Library","👤 My Profile"],
+            accent="#c084fc", portal_label="Advanced Combo", member=member
+        )
         advc_pages = {
             "🏠 Home":           equity_home,
             "📊 Equity Calls":   equity_home,
@@ -3847,22 +3889,10 @@ def main():
             st.session_state.pop("member", None)
             portal_login("valuation_screener"); return
 
-        with st.sidebar:
-            st.markdown(f'''<div style="text-align:center;padding:14px 8px 4px;">
-              <img src="{NYZTRADE_LOGO_SRC}" style="width:110px;height:auto;border-radius:8px;
-                   margin-bottom:4px;border:1px solid #00ff8833;" alt="NYZTrade">
-              <div style="font-size:9px;color:#1a6b3a;letter-spacing:3px;text-transform:uppercase;
-                   margin-top:2px;">Valuation Screener</div>
-            </div>''', unsafe_allow_html=True)
-            st.divider()
-            sidebar_member_info(member, "#00ff88")
-            st.divider()
-            if st.button("🚪 Logout", use_container_width=True):
-                _clear_session()
-                st.session_state.clear()
-                st.rerun()
-
         _save_session()
+        sidebar_member_info(member, "#00ff88")
+        # Valuation screener has no page nav — just logout in top bar
+        top_nav([], accent="#00ff88", portal_label="Valuation Screener", member=member)
         st.markdown('''<style>
         .block-container{padding:0!important;max-width:100%!important;}
         iframe{border:none!important;border-radius:0!important;}
@@ -3888,28 +3918,12 @@ def main():
             st.session_state.pop("member", None)
             portal_login("research"); return
 
-        with st.sidebar:
-            st.markdown(f'''<div style="text-align:center;padding:14px 8px 4px;">
-              <img src="{NYZTRADE_LOGO_SRC}" style="width:110px;height:auto;border-radius:8px;margin-bottom:4px;border:1px solid #ffd70022;" alt="NYZTrade">
-              <div style="font-size:9px;color:#4b3a6b;letter-spacing:3px;text-transform:uppercase;margin-top:2px;">Research Hub</div>
-            </div>''', unsafe_allow_html=True)
-            st.divider()
-            sidebar_member_info(member, "#ffd700")
-            page = st.radio("", [
-                "📄 Research Reports","🏦 Broker Calls","👤 My Profile",
-            ], label_visibility="collapsed")
-            st.divider()
-            if st.button("🚪 Logout", use_container_width=True):
-                _clear_session()
-                st.session_state.clear()
-                st.rerun()
-
         _save_session()
-        page = bottom_tabs([
-            ("📄","Reports","📄 Research Reports"),
-            ("🏦","Broker","🏦 Broker Calls"),
-            ("👤","Profile","👤 My Profile"),
-        ], key="res", accent="#ffd700") or page
+        sidebar_member_info(member, "#ffd700")
+        page = top_nav(
+            ["📄 Research Reports","🏦 Broker Calls","👤 My Profile"],
+            accent="#ffd700", portal_label="Research Hub", member=member
+        )
         res_pages = {
             "📄 Research Reports": member_research,
             "🏦 Broker Calls":     member_research,
