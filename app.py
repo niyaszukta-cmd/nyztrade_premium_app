@@ -1997,7 +1997,7 @@ def admin_research():
                     st.warning("⚠️ Could not extract text from this PDF (may be scanned image). Fill fields manually.")
                 else:
                     with st.spinner("🤖 Llama 3.3 70B is analysing the report..."):
-                        parsed = _parse_report_with_grok(pdf_text)
+                        parsed = _parse_report_with_grok(pdf_text, BROKER_HOUSES, REPORT_CATEGORIES)
 
                     if parsed.get("_error") and "429" in parsed["_error"]:
                         st.warning("⚠️ Groq rate limit hit. Wait 30 seconds and try again.")
@@ -2077,7 +2077,17 @@ def admin_research():
                 title     = st.text_input("Report Title *",        value=ai_title)
                 broker    = st.selectbox("Broker House *",          BROKER_HOUSES, index=_idx(BROKER_HOUSES, ai_broker))
                 category  = st.selectbox("Category *",             REPORT_CATEGORIES, index=_idx(REPORT_CATEGORIES, ai_cat))
-                symbol    = st.text_input("Stock Symbol",           value=ai_symbol, placeholder="RELIANCE, NIFTY...")
+                # Symbol — free text or quick-pick for multi-stock reports
+                symbol_options = ["(type below)", "Various / Multiple Stocks", "Nifty 50 Basket",
+                                   "Banking Sector", "IT Sector", "Auto Sector", "FMCG Sector"]
+                symbol_preset = st.selectbox("Symbol — Quick Pick",
+                    symbol_options,
+                    index=0,
+                    help="Select 'Various' for multi-stock reports, or type below")
+                symbol_default = "" if symbol_preset == "(type below)" else symbol_preset
+                symbol    = st.text_input("Stock Symbol",
+                    value=symbol_default if symbol_default else ai_symbol,
+                    placeholder="RELIANCE, NIFTY, or leave blank for multi-stock...")
                 sector    = st.text_input("Sector",                 value=ai_sector, placeholder="Banking, IT, Auto...")
             with c2:
                 call_type     = st.selectbox("Rating / Call",       CALL_TYPES, index=_idx(CALL_TYPES, ai_call))
