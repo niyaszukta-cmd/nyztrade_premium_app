@@ -1277,13 +1277,17 @@ def render_report_meta(r):
     # ── Stock picks table (for multi-stock reports) ──────────────────────
     stock_picks_html = ""
     picks = r.get("stock_picks")
-    if picks:
+    if picks and picks not in ('', '[]', 'null', None):
         try:
             if isinstance(picks, str):
                 import json as _json
                 picks = _json.loads(picks)
+            if not isinstance(picks, list):
+                picks = []
         except Exception:
             picks = []
+    else:
+        picks = []
     if picks and len(picks) > 0:
         rows_html = ""
         for p in picks[:5]:
@@ -2248,6 +2252,7 @@ def admin_research():
                               COALESCE(notes,'') as notes,
                               COALESCE(visible_to,'all') as visible_to,
                               COALESCE(pdf_filename,'') as pdf_filename,
+                              COALESCE(stock_picks,'') as stock_picks,
                               created_at,
                               CASE WHEN pdf_data IS NOT NULL THEN 1 ELSE 0 END AS has_pdf
                        FROM research_reports WHERE 1=1"""
@@ -2270,8 +2275,29 @@ def admin_research():
             with st.expander(f"[{r['broker_house']}] {r['symbol'] or '—'} — {r['call_type']} | {r['title'][:55]} | {r['report_date']}  {pdf_badge}"):
                 render_report_meta(dict(r))
                 if r['has_pdf']:
-                    if st.button("👁️ Preview PDF", key=f"prev_{r['id']}"):
+                    # Re-extract stock picks button for reports without picks
+                    picks_exist = r.get("stock_picks") and r["stock_picks"] not in ('', '[]', 'null')
+                    btn_c1, btn_c2 = st.columns([3,2])
+                    if btn_c1.button("👁️ Preview PDF", key=f"prev_{r['id']}"):
                         st.session_state[f"show_pdf_{r['id']}"] = not st.session_state.get(f"show_pdf_{r['id']}", False)
+                    if not picks_exist:
+                        if btn_c2.button("✨ Extract Picks", key=f"rex_{r['id']}", type="primary"):
+                            with st.spinner("Extracting stock picks from PDF..."):
+                                conn_r = get_conn()
+                                pdf_row_r = _fetchone(_exec(conn_r, "SELECT pdf_data FROM research_reports WHERE id=?", (r['id'],)))
+                                close_conn(conn_r)
+                            if pdf_row_r and pdf_row_r['pdf_data']:
+                                pdf_text_r = _extract_pdf_text(bytes(pdf_row_r['pdf_data']))
+                                parsed_r = _parse_report_with_grok(pdf_text_r, BROKER_HOUSES, REPORT_CATEGORIES) if pdf_text_r else {}
+                                import json as _j
+                                picks_r = parsed_r.get("stock_picks") or []
+                                conn_u = get_conn()
+                                _exec(conn_u, "UPDATE research_reports SET stock_picks=? WHERE id=?", (_j.dumps(picks_r), r['id']))
+                                conn_u.commit(); close_conn(conn_u)
+                                if picks_r:
+                                    st.success(f"✅ Extracted {len(picks_r)} pick(s)!"); st.rerun()
+                                else:
+                                    st.info("No specific picks found in this report.")
                     if st.session_state.get(f"show_pdf_{r['id']}"):
                         conn2 = get_conn()
                         pdf_row = _fetchone(_exec(conn2, "SELECT pdf_data FROM research_reports WHERE id=?", (r['id'],)))
@@ -3046,6 +3072,7 @@ def member_research(member):
                               report_date, sector, tags, notes,
                               COALESCE(visible_to, 'all') as visible_to,
                               COALESCE(pdf_filename, '') as pdf_filename,
+                              COALESCE(stock_picks, '') as stock_picks,
                               CASE WHEN pdf_data IS NOT NULL THEN 1 ELSE 0 END AS has_pdf
                        FROM research_reports
                        WHERE (COALESCE(visible_to,'all')='all' OR COALESCE(visible_to,'all')=?)"""
