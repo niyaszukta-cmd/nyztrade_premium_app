@@ -273,13 +273,38 @@ input, textarea, select {
 }
 .video-embed-wrap iframe { width: 100%; border: none; display: block; }
 
-/* ── MOBILE: collapse sidebar trigger ── */
+/* ── MOBILE: sidebar & toggle ── */
 @media (max-width: 767px) {
     [data-testid="stSidebar"] { min-width: 0 !important; }
     .block-container { padding: 0.75rem !important; }
     .section-header { font-size: 20px !important; }
     .metric-value { font-size: 22px !important; }
     .call-card { padding: 12px !important; }
+}
+
+/* ── Sidebar expand button — ALWAYS visible on all screen sizes ── */
+[data-testid="stSidebarCollapsedControl"] {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: all !important;
+}
+[data-testid="stSidebarCollapsedControl"] button {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: #1a0f2e !important;
+    border: 1px solid #a855f7 !important;
+    border-radius: 50% !important;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 12px rgba(168,85,247,0.35) !important;
+}
+[data-testid="stSidebarCollapsedControl"] svg {
+    color: #a855f7 !important;
+    fill: #a855f7 !important;
 }
 
 /* ── SCROLLBAR ── */
@@ -337,7 +362,7 @@ input, textarea, select {
 """
 st.markdown(DARK_CSS, unsafe_allow_html=True)
 # Mobile viewport + PWA meta tags
-st.markdown('''<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+st.markdown('''<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#08070f">''', unsafe_allow_html=True)
@@ -1436,7 +1461,7 @@ def select_portal():
     st.markdown('''<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">''', unsafe_allow_html=True)
     st.markdown('''<style>
     .stApp{background:linear-gradient(135deg,#0a0a12 0%,#10091e 60%,#0a0a12 100%)!important;}
-    [data-testid="stSidebar"] > div > div > div > div { visibility:hidden; }
+
     .block-container{padding-top:0!important;max-width:1000px!important;}
     </style>''', unsafe_allow_html=True)
 
@@ -1553,7 +1578,7 @@ def portal_login(portal_type):
     st.markdown(f'''<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
     .stApp{{background:linear-gradient(135deg,#0a0a12 0%,#10091e 60%,#0a0a12 100%)!important;}}
-    [data-testid="stSidebar"] > div > div > div > div {{ visibility:hidden; }}
+
     .block-container{{padding-top:20px!important;max-width:520px!important;}}
     </style>''', unsafe_allow_html=True)
 
@@ -1618,7 +1643,7 @@ def admin_login():
     st.markdown('''<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
     .stApp{background:linear-gradient(135deg,#0a0a12 0%,#10091e 60%,#0a0a12 100%)!important;}
-    [data-testid="stSidebar"] > div > div > div > div { visibility:hidden; }
+
     .block-container{padding-top:20px!important;max-width:520px!important;}
     </style>''', unsafe_allow_html=True)
 
