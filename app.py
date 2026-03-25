@@ -72,16 +72,16 @@ PLAN_ACCESS = {
     "Combo Monthly":            ["equity", "options"],
     "Combo Quarterly":          ["equity", "options"],
     "Combo Annual":             ["equity", "options"],
-    "Adv Combo Monthly":        ["equity", "options", "adv_equity", "adv_options"],
+    "Adv Combo Monthly":        ["equity", "options", "adv_equity", "adv_options", "valuation_screener"],
     "Adv Combo Quarterly":      ["equity", "options", "adv_equity", "adv_options"],
     "Adv Combo Annual":         ["equity", "options", "adv_equity", "adv_options"],
-    "Adv Equity Monthly":       ["equity", "adv_equity"],
-    "Adv Equity Quarterly":     ["equity", "adv_equity"],
-    "Adv Equity Annual":        ["equity", "adv_equity"],
+    "Adv Equity Monthly":       ["equity", "adv_equity", "valuation_screener"],
+    "Adv Equity Quarterly":     ["equity", "adv_equity", "valuation_screener"],
+    "Adv Equity Annual":        ["equity", "adv_equity", "valuation_screener"],
     "Adv Options Monthly":      ["options", "adv_options"],
     "Adv Options Quarterly":    ["options", "adv_options"],
     "Adv Options Annual":       ["options", "adv_options"],
-    "Trial":                    ["equity", "options", "adv_equity", "adv_options"],
+    "Trial":                    ["equity", "options", "adv_equity", "adv_options", "valuation_screener"],
 }
 
 BROKER_HOUSES = [
@@ -280,11 +280,6 @@ input, textarea, select {
     .section-header { font-size: 20px !important; }
     .metric-value { font-size: 22px !important; }
     .call-card { padding: 12px !important; }
-}
-
-/* ── Sidebar collapse << button — push below logo ── */
-[data-testid="stSidebar"] [data-testid="stBaseButton-header"] {
-    margin-top: 8px !important;
 }
 
 /* ── SCROLLBAR ── */
@@ -1441,7 +1436,7 @@ def select_portal():
     st.markdown('''<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">''', unsafe_allow_html=True)
     st.markdown('''<style>
     .stApp{background:linear-gradient(135deg,#0a0a12 0%,#10091e 60%,#0a0a12 100%)!important;}
-    [data-testid="stSidebar"]{visibility:hidden;}
+    [data-testid="stSidebar"] > div > div > div > div { visibility:hidden; }
     .block-container{padding-top:0!important;max-width:1000px!important;}
     </style>''', unsafe_allow_html=True)
 
@@ -1469,6 +1464,8 @@ def select_portal():
          ["Broker research reports","Buy/Sell/Hold calls","Sector & IPO analysis","Price target revisions","Institutional flow notes"],"research"),
         ("💎","ADV · COMBO","Advanced Combo","All-access premium","#10081e","#c084fc","#c084fc",
          ["Everything in Equity + Options","Advanced Equity setups","GEX & Gamma Blast signals","Vanna · Charm analysis","Full research hub access"],"adv_combo"),
+        ("💹","VALUATION","Valuation Screener","Equity & Adv Equity plans","#0a1a0a","#00ff88","#00ff88",
+         ["DCF valuation of 8000+ stocks","Price vs intrinsic value","Graham & Lynch screeners","Sector-wise screening","Fair value alerts"],"valuation_screener"),
     ]
 
     # Row 1 — first 3 cards
@@ -1499,8 +1496,8 @@ def select_portal():
 
     st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
 
-    # Row 2 — last 4 cards (Advanced Equity, Advanced Options, Research, Adv Combo)
-    row2 = st.columns(4)
+    # Row 2 — last 5 cards (Advanced Equity, Advanced Options, Research, Adv Combo, Valuation)
+    row2 = st.columns(5)
     for col, card in zip(row2, card_data[3:]):
         icon, tag, title, sub, bg_c, accent, txt_c, feats, portal_key = card
         with col:
@@ -1540,13 +1537,15 @@ def select_portal():
 
 def portal_login(portal_type):
     icons   = {"equity": "📈", "options": "⚡", "research": "📄",
-               "adv_equity": "🚀", "adv_options": "🔥", "adv_combo": "💎"}
+               "adv_equity": "🚀", "adv_options": "🔥", "adv_combo": "💎",
+               "valuation_screener": "💹"}
     titles  = {"equity": "Equity Portal", "options": "Options & GEX Portal",
                "research": "Research Hub",
                "adv_equity": "Advanced Equity", "adv_options": "Advanced Options · GEX & Gamma Blast",
-               "adv_combo": "Advanced Combo"}
+               "adv_combo": "Advanced Combo", "valuation_screener": "Valuation Screener"}
     accents = {"equity": "#00ffb4", "options": "#7b61ff", "research": "#ffd700",
-               "adv_equity": "#00e5ff", "adv_options": "#ff6b35", "adv_combo": "#c084fc"}
+               "adv_equity": "#00e5ff", "adv_options": "#ff6b35", "adv_combo": "#c084fc",
+               "valuation_screener": "#00ff88"}
     icon   = icons.get(portal_type, "📈")
     title  = titles.get(portal_type, "Member Portal")
     accent = accents.get(portal_type, "#a855f7")
@@ -1554,7 +1553,7 @@ def portal_login(portal_type):
     st.markdown(f'''<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
     .stApp{{background:linear-gradient(135deg,#0a0a12 0%,#10091e 60%,#0a0a12 100%)!important;}}
-    [data-testid="stSidebar"]{{visibility:hidden;}}
+    [data-testid="stSidebar"] > div > div > div > div {{ visibility:hidden; }}
     .block-container{{padding-top:20px!important;max-width:520px!important;}}
     </style>''', unsafe_allow_html=True)
 
@@ -1619,7 +1618,7 @@ def admin_login():
     st.markdown('''<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
     .stApp{background:linear-gradient(135deg,#0a0a12 0%,#10091e 60%,#0a0a12 100%)!important;}
-    [data-testid="stSidebar"]{visibility:hidden;}
+    [data-testid="stSidebar"] > div > div > div > div { visibility:hidden; }
     .block-container{padding-top:20px!important;max-width:520px!important;}
     </style>''', unsafe_allow_html=True)
 
@@ -3170,6 +3169,75 @@ def _video_embed_grid(rows):
                 st.warning("No embed code available for this video.")
 
 
+# ══════════════════════════════════════════════════════════════════════
+# VALUATION SCREENER — iframe embed
+# ══════════════════════════════════════════════════════════════════════
+# To activate: replace VALUATION_SCREENER_URL with your Streamlit Cloud URL
+# e.g. "https://nyztrade-valuation.streamlit.app"
+
+VALUATION_SCREENER_URL = ""   # ← PASTE YOUR VALUATION APP URL HERE
+
+def valuation_screener(member):
+    st.markdown('<div class="section-header">💹 Valuation Screener</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-sub">DCF valuation · Graham number · Fair value analysis · 8,000+ stocks</div>', unsafe_allow_html=True)
+
+    if not VALUATION_SCREENER_URL or not VALUATION_SCREENER_URL.startswith("http"):
+        # Placeholder until URL is set
+        st.markdown(f"""
+        <div style="background:linear-gradient(135deg,#0a1628,#0e1e38);border:1px solid #00ddff33;
+             border-radius:20px;padding:60px 40px;text-align:center;margin:20px 0">
+          <div style="font-size:48px;margin-bottom:20px">💹</div>
+          <div style="font-size:28px;font-weight:800;color:#00ddff;margin-bottom:10px">
+            Valuation Screener
+          </div>
+          <div style="font-size:15px;color:#6b8aaa;margin-bottom:30px;line-height:1.8">
+            8,000+ NSE & BSE stocks · DCF Model · Graham Number<br>
+            Fair Value vs CMP · Sector Screener · P/E, P/B, ROE filters
+          </div>
+          <div style="background:#0a1628;border:1px dashed #00ddff44;border-radius:12px;
+               padding:20px;display:inline-block;margin-bottom:24px">
+            <div style="font-size:12px;color:#445566;letter-spacing:2px;
+                 text-transform:uppercase;margin-bottom:8px">Coming Soon</div>
+            <div style="font-size:13px;color:#00ddff">
+              Deploying shortly — check back soon
+            </div>
+          </div>
+          <br>
+          <div style="font-size:12px;color:#2d4a6b;margin-top:10px">
+            For admin: set VALUATION_SCREENER_URL in app.py line ~{content.count(chr(10), 0, content.find("VALUATION_SCREENER_URL ="))+1}
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # Feature preview cards
+        c1, c2, c3 = st.columns(3)
+        for col, icon, title, desc in [
+            (c1, "📊", "DCF Valuation", "Intrinsic value using discounted cash flows"),
+            (c2, "📐", "Graham Number", "Benjamin Graham conservative fair value"),
+            (c3, "🔍", "Stock Screener", "Filter 8,000+ stocks by valuation metrics"),
+        ]:
+            col.markdown(f'''<div style="background:#0a0f1e;border:1px solid #1a2a4a;
+                border-radius:12px;padding:20px;text-align:center;height:120px">
+              <div style="font-size:24px">{icon}</div>
+              <div style="font-weight:700;color:#00ddff;font-size:14px;margin:8px 0 4px">{title}</div>
+              <div style="font-size:11px;color:#445566;line-height:1.5">{desc}</div>
+            </div>''', unsafe_allow_html=True)
+        return
+
+    # URL is set — embed the app via iframe
+    st.markdown(f'''
+    <div style="border:1px solid #00ddff22;border-radius:12px;overflow:hidden;margin-top:8px">
+      <iframe src="{VALUATION_SCREENER_URL}"
+              width="100%"
+              height="800"
+              frameborder="0"
+              style="display:block;min-height:800px">
+      </iframe>
+    </div>
+    ''', unsafe_allow_html=True)
+    st.caption("💹 Valuation Screener — powered by NYZTrade Analytics")
+
+
 def member_profile(member, portal_type):
     exp      = date.fromisoformat(member['expiry_date']) if member.get('expiry_date') else None
     dl       = (exp - date.today()).days if exp else None
@@ -3269,13 +3337,7 @@ def main():
         select_portal()
         return
 
-    # ── Restore sidebar visibility for all logged-in portals ──────────
-    # The login/select pages hide the sidebar with display:none.
-    # Once logged in, we must explicitly re-show it.
-    st.markdown('''<style>
-    [data-testid="stSidebar"]{visibility:visible!important;}
-    .block-container{max-width:100%!important;padding-left:1rem!important;padding-right:1rem!important;}
-    </style>''', unsafe_allow_html=True)
+
 
     # ── ADMIN PORTAL ──────────────────────────────────────────────────
     if portal == "admin":
@@ -3620,6 +3682,47 @@ def main():
         }
         with st.spinner("💎 Loading..."):
             advc_pages[page](member)
+        return
+
+    # ── VALUATION SCREENER PORTAL ─────────────────────────────────────
+    if portal == "valuation_screener":
+        member = st.session_state.get("member")
+        if not member or st.session_state.get("active_portal") != "valuation_screener":
+            st.session_state.pop("member", None)
+            portal_login("valuation_screener"); return
+
+        with st.sidebar:
+            st.markdown(f'''<div style="text-align:center;padding:14px 8px 4px;">
+              <img src="{NYZTRADE_LOGO_SRC}" style="width:110px;height:auto;border-radius:8px;
+                   margin-bottom:4px;border:1px solid #00ff8833;" alt="NYZTrade">
+              <div style="font-size:9px;color:#1a6b3a;letter-spacing:3px;text-transform:uppercase;
+                   margin-top:2px;">Valuation Screener</div>
+            </div>''', unsafe_allow_html=True)
+            st.divider()
+            sidebar_member_info(member, "#00ff88")
+            st.divider()
+            if st.button("🚪 Logout", use_container_width=True):
+                _clear_session()
+                st.session_state.clear()
+                st.rerun()
+
+        _save_session()
+        st.markdown('''<style>
+        .block-container{padding:0!important;max-width:100%!important;}
+        iframe{border:none!important;border-radius:0!important;}
+        </style>''', unsafe_allow_html=True)
+        st.markdown(
+            '<div style="font-size:13px;color:#445566;padding:8px 16px;">'
+            '💹 <b style="color:#00ff88">Valuation Screener</b> — 8,000+ Indian stocks · DCF & Graham analysis'
+            '</div>',
+            unsafe_allow_html=True
+        )
+        import streamlit.components.v1 as components
+        components.iframe(
+            "https://value-screeners-wvdrespkw4jjbv2m6pauva.streamlit.app/?embed=true",
+            height=820,
+            scrolling=True
+        )
         return
 
     # ── RESEARCH PORTAL ───────────────────────────────────────────────
