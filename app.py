@@ -1622,7 +1622,9 @@ def select_portal():
               <div style="height:1px;background:linear-gradient(90deg,{accent}44,transparent);margin-bottom:12px;"></div>
               {feats_html}
             </div>""", unsafe_allow_html=True)
-            if st.button(f"Enter {title} →", key=f"btn_{portal_key}", use_container_width=True):
+            if portal_key == "valuation_screener":
+                st.link_button("🚀 Open Screener →", "https://value-screeners-wvdrespkw4jjbv2m6pauva.streamlit.app/", use_container_width=True)
+            elif st.button(f"Enter {title} →", key=f"btn_{portal_key}", use_container_width=True):
                 st.session_state.portal = portal_key
                 _save_session()
                 st.rerun()
@@ -1653,7 +1655,9 @@ def select_portal():
               <div style="height:1px;background:linear-gradient(90deg,{accent}44,transparent);margin-bottom:12px;"></div>
               {feats_html}
             </div>""", unsafe_allow_html=True)
-            if st.button(f"Enter {title} →", key=f"btn_{portal_key}", use_container_width=True):
+            if portal_key == "valuation_screener":
+                st.link_button("🚀 Open Screener →", "https://value-screeners-wvdrespkw4jjbv2m6pauva.streamlit.app/", use_container_width=True)
+            elif st.button(f"Enter {title} →", key=f"btn_{portal_key}", use_container_width=True):
                 st.session_state.portal = portal_key
                 _save_session()
                 st.rerun()
@@ -3841,31 +3845,30 @@ def main():
 
     # ── VALUATION SCREENER PORTAL ─────────────────────────────────────
     if portal == "valuation_screener":
-        member = st.session_state.get("member")
-        if not member or st.session_state.get("active_portal") != "valuation_screener":
-            st.session_state.pop("member", None)
-            portal_login("valuation_screener"); return
-
-        _save_session()
-        # Valuation screener has no page nav — just logout in top bar
-        top_nav([], accent="#00ff88", portal_label="Valuation Screener", member=member)
-        st.markdown('''<style>
-        .block-container{padding:0!important;max-width:100%!important;}
-        iframe{border:none!important;border-radius:0!important;}
-        </style>''', unsafe_allow_html=True)
-        st.markdown(
-            '<div style="font-size:13px;color:#c8dce8;padding:8px 16px;">'
-            '💹 <b style="color:#00ff88">Valuation Screener</b> — 8,000+ Indian stocks · DCF & Graham analysis'
-            '</div>',
-            unsafe_allow_html=True
-        )
-        import streamlit.components.v1 as components
-        components.iframe(
-            "https://value-screeners-wvdrespkw4jjbv2m6pauva.streamlit.app/?embed=true",
-            height=820,
-            scrolling=True
-        )
+        # No login required — open external URL directly
+        SCREENER_URL = "https://value-screeners-wvdrespkw4jjbv2m6pauva.streamlit.app/"
+        st.markdown(f'''
+        <meta http-equiv="refresh" content="0; url={SCREENER_URL}">
+        <script>window.top.location.href="{SCREENER_URL}";</script>
+        <div style="text-align:center;padding:80px 20px;">
+          <div style="font-size:48px;margin-bottom:16px">💹</div>
+          <div style="font-size:20px;font-weight:700;color:#00ff88;margin-bottom:12px">
+            Redirecting to Valuation Screener...
+          </div>
+          <div style="font-size:14px;color:#c8dce8;margin-bottom:28px">
+            If not redirected automatically, click below.
+          </div>
+          <a href="{SCREENER_URL}" target="_blank"
+             style="display:inline-block;background:#00ff88;color:#000;
+                    font-weight:800;font-size:15px;padding:14px 40px;
+                    border-radius:50px;text-decoration:none;">
+            🚀 Open Valuation Screener →
+          </a>
+        </div>
+        ''', unsafe_allow_html=True)
+        st.session_state.portal = None
         return
+
 
     # ── RESEARCH PORTAL ───────────────────────────────────────────────
     if portal == "research":
