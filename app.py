@@ -772,6 +772,7 @@ def _migrate_db(conn):
         "ALTER TABLE broker_calls ADD COLUMN status TEXT DEFAULT 'Active'",
         "ALTER TABLE broker_calls ADD COLUMN call_date TEXT",
         "ALTER TABLE videos ADD COLUMN visible_to TEXT DEFAULT 'all'",
+        "ALTER TABLE research_reports ADD COLUMN stock_picks TEXT DEFAULT NULL",
     ]
     for sql in add_cols:
         try:
@@ -1273,6 +1274,56 @@ def render_report_meta(r):
 
     summary_html = f'<div style="margin-top:12px;font-size:13px;color:#d4c8e8;line-height:1.7">{summary}</div>' if summary else ""
 
+    # ── Stock picks table (for multi-stock reports) ──────────────────────
+    stock_picks_html = ""
+    picks = r.get("stock_picks")
+    if picks:
+        try:
+            if isinstance(picks, str):
+                import json as _json
+                picks = _json.loads(picks)
+        except Exception:
+            picks = []
+    if picks and len(picks) > 0:
+        rows_html = ""
+        for p in picks[:5]:
+            sym   = p.get("symbol") or "—"
+            ct    = (p.get("call_type") or "BUY").upper()
+            cmp_v = f"₹{p['cmp']}" if p.get("cmp") else "—"
+            tgt_v = f"₹{p['target']}" if p.get("target") else "—"
+            up_v  = p.get("upside_pct")
+            rat   = p.get("rationale") or ""
+            ct_col = {"BUY":"#00ffb4","SELL":"#ff6b6b","HOLD":"#ffd700",
+                      "ACCUMULATE":"#00ddff","REDUCE":"#ff8c42"}.get(ct,"#c084fc")
+            up_col = "#00ffb4" if (up_v or 0) >= 0 else "#ff6b6b"
+            up_str = f"{up_v:+.1f}%" if up_v is not None else "—"
+            rows_html += (
+                f'<tr style="border-bottom:1px solid #2d1f4e">' +
+                f'<td style="padding:8px 10px;font-weight:700;color:#fff;font-size:13px">{sym}</td>' +
+                f'<td style="padding:8px 10px"><span style="background:{ct_col}22;color:{ct_col};' +
+                f'border:1px solid {ct_col}44;border-radius:12px;padding:2px 10px;font-size:11px;font-weight:700">{ct}</span></td>' +
+                f'<td style="padding:8px 10px;color:#e8f0f8;font-size:13px">{cmp_v}</td>' +
+                f'<td style="padding:8px 10px;color:{ct_col};font-weight:700;font-size:13px">{tgt_v}</td>' +
+                f'<td style="padding:8px 10px;color:{up_col};font-weight:700;font-size:13px">{up_str}</td>' +
+                f'<td style="padding:8px 10px;color:#c8dce8;font-size:11px">{rat}</td>' +
+                f'</tr>'
+            )
+        stock_picks_html = (
+            f'<div style="margin-top:18px">' +
+            f'<div style="font-size:10px;color:#00ffb4;text-transform:uppercase;letter-spacing:2px;' +
+            f'font-weight:700;margin-bottom:10px">📊 Top Stock Picks ({len(picks[:5])})</div>' +
+            f'<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;' +
+            f'background:#0a0715;border:1px solid #2d1f4e;border-radius:10px;overflow:hidden">' +
+            f'<thead><tr style="background:#1a0f2e">' +
+            f'<th style="padding:8px 10px;text-align:left;font-size:10px;color:#a0b4c8;letter-spacing:1px;text-transform:uppercase">Symbol</th>' +
+            f'<th style="padding:8px 10px;text-align:left;font-size:10px;color:#a0b4c8;letter-spacing:1px;text-transform:uppercase">Rating</th>' +
+            f'<th style="padding:8px 10px;text-align:left;font-size:10px;color:#a0b4c8;letter-spacing:1px;text-transform:uppercase">CMP</th>' +
+            f'<th style="padding:8px 10px;text-align:left;font-size:10px;color:#a0b4c8;letter-spacing:1px;text-transform:uppercase">Target</th>' +
+            f'<th style="padding:8px 10px;text-align:left;font-size:10px;color:#a0b4c8;letter-spacing:1px;text-transform:uppercase">Upside</th>' +
+            f'<th style="padding:8px 10px;text-align:left;font-size:10px;color:#a0b4c8;letter-spacing:1px;text-transform:uppercase">Rationale</th>' +
+            f'</tr></thead><tbody>{rows_html}</tbody></table></div></div>'
+        )
+
     cmp_str    = f"₹{r['current_price']}" if r.get("current_price") else "—"
     target_str = f"₹{r['target_price']}"  if r.get("target_price")  else "—"
     analyst_html = f'<div style="font-size:11px;color:#e2d9f3;margin-top:3px">Analyst: {r["analyst"]}</div>' if r.get("analyst") else ""
@@ -1313,6 +1364,7 @@ def render_report_meta(r):
       {summary_html}
       {pos_html}
       {neg_html}
+      {stock_picks_html}
 
       {f'<div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap">{tags_html}</div>' if tags_html else ""}
 
@@ -1912,7 +1964,7 @@ Return a JSON object with EXACTLY these keys (use null for anything not found):
   "title": "exact or descriptive report title",
   "broker_house": "one of: {broker_list}",
   "category": "one of: {cat_list}",
-  "symbol": "NSE/BSE ticker symbol e.g. RELIANCE",
+  "symbol": "NSE/BSE ticker symbol. If multiple stocks, use 'Various / Multiple Stocks'",
   "sector": "sector e.g. Banking, IT, Auto, FMCG, Pharma",
   "call_type": "one of: BUY, SELL, HOLD, ACCUMULATE, REDUCE, NEUTRAL, UNDERPERFORM",
   "target_price": number or null,
@@ -1922,7 +1974,10 @@ Return a JSON object with EXACTLY these keys (use null for anything not found):
   "tags": "3-5 relevant comma-separated lowercase tags",
   "positives": ["key positive 1", "key positive 2", "key positive 3"],
   "negatives": ["key risk 1", "key risk 2"],
-  "notes": "2-3 sentence executive summary"
+  "notes": "2-3 sentence executive summary",
+  "stock_picks": [
+    {{"symbol": "TICKER", "call_type": "BUY/SELL/HOLD", "cmp": number_or_null, "target": number_or_null, "upside_pct": number_or_null, "rationale": "one line reason"}}
+  ]
 }}
 
 Rules:
@@ -1932,6 +1987,10 @@ Rules:
 - target_price and current_price: numbers only, no currency symbols
 - positives: 3-6 key investment arguments or growth catalysts
 - negatives: 2-4 key risks, concerns or headwinds
+- stock_picks: extract up to 5 individual stock recommendations with highest upside potential.
+  If the report covers only one stock, put that stock in stock_picks too.
+  If no specific stock picks found, use empty array [].
+  upside_pct = ((target - cmp) / cmp * 100) rounded to 1 decimal, or null if data missing.
 - Return ONLY valid JSON — no markdown fences, no explanation, no extra text
 
 Report text:
@@ -2153,13 +2212,14 @@ def admin_research():
                             (title, broker_house, category, symbol, call_type,
                              target_price, current_price, upside_pct, analyst,
                              report_date, sector, tags, notes, visible_to,
-                             pdf_data, pdf_filename)
-                            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                             pdf_data, pdf_filename, stock_picks)
+                            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                             (title, broker, category,
                              symbol.upper().strip() if symbol else None,
                              call_type, target_price or None, current_price or None,
                              upside_pct, analyst, str(report_date), sector, tags,
-                             full_notes, visible_to, pdf_bytes, uploaded_pdf.name))
+                             full_notes, visible_to, pdf_bytes, uploaded_pdf.name,
+                             __import__("json").dumps(ai_data.get("stock_picks") or [])))
                         conn.commit(); close_conn(conn)
                         st.session_state.pop("_ai_prefill", None)
                         st.success(f"✅ '{title}' uploaded ({size_mb:.2f} MB) — available to members immediately.")
