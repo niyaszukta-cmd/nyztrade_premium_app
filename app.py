@@ -593,49 +593,17 @@ if _DB_URL:
         _USE_PG = False
 
 
-# ── Connection Pool (PostgreSQL only) ─────────────────────────────────────
-# Reuses connections instead of opening a new one on every interaction.
-# MIN_CONN=1 keeps one warm connection alive; MAX_CONN=5 handles bursts.
-_PG_POOL = None
-
-def _get_pool():
-    """Return the global psycopg2 ThreadedConnectionPool, creating it if needed."""
-    global _PG_POOL
-    if _PG_POOL is None or _PG_POOL.closed:
-        import psycopg2, psycopg2.pool, psycopg2.extras
-        _PG_POOL = psycopg2.pool.ThreadedConnectionPool(
-            minconn=1,
-            maxconn=5,
-            dsn=_DB_URL,
+def get_conn():
+    """Simple fresh connection per call. autocommit=True avoids transaction overhead."""
+    if _USE_PG:
+        import psycopg2, psycopg2.extras
+        conn = psycopg2.connect(
+            _DB_URL,
             cursor_factory=psycopg2.extras.RealDictCursor,
             connect_timeout=10,
-            keepalives=1,
-            keepalives_idle=30,
-            keepalives_interval=10,
-            keepalives_count=5,
         )
-    return _PG_POOL
-
-
-def get_conn():
-    """Get a connection — from pool (PG) or fresh (SQLite)."""
-    if _USE_PG:
-        try:
-            pool = _get_pool()
-            conn = pool.getconn()
-            conn.autocommit = True
-            return conn
-        except Exception:
-            # Pool exhausted or broken — fall back to direct connection
-            import psycopg2, psycopg2.extras
-            conn = psycopg2.connect(
-                _DB_URL,
-                cursor_factory=psycopg2.extras.RealDictCursor,
-                connect_timeout=10,
-            )
-            conn.autocommit = True
-            conn._direct = True  # mark as direct so close_conn closes it
-            return conn
+        conn.autocommit = True
+        return conn
     else:
         conn = sqlite3.connect(DB_PATH, check_same_thread=False)
         conn.row_factory = sqlite3.Row
@@ -643,22 +611,9 @@ def get_conn():
 
 
 def close_conn(conn):
-    """Return connection to pool (PG) or close it (SQLite/direct)."""
-    if not conn:
-        return
-    if _USE_PG and not getattr(conn, '_direct', False):
-        try:
-            # Validate connection is still alive before returning to pool
-            if conn.closed == 0:
-                _get_pool().putconn(conn)
-            else:
-                _get_pool().putconn(conn, close=True)
-        except Exception:
-            try: conn.close()
-            except: pass
-    else:
-        try: conn.close()
-        except: pass
+    """Close connection."""
+    try: conn.close()
+    except: pass
 
 def bottom_tabs(pages: list, key: str, accent: str = "#a855f7") -> str:
     """
@@ -1037,14 +992,8 @@ if "last_expire_check" not in st.session_state or    (date.today().toordinal() -
     st.session_state["last_expire_check"] = date.today().toordinal()
 
 # Show DB status in sidebar after load (admin only — shown in admin dashboard)
-_DB_STATUS = "🟢 Supabase PostgreSQL · Pool active" if _USE_PG else "🟡 SQLite local (ephemeral — add DATABASE_URL to Secrets)"
+_DB_STATUS = "🟢 Supabase PostgreSQL (persistent)" if _USE_PG else "🟡 SQLite local (ephemeral — add DATABASE_URL to Secrets)"
 
-# ── Warm up pool at startup so first user interaction is instant ──────────
-if _USE_PG:
-    try:
-        _warmup = _get_pool()  # initialises minconn=1 connection immediately
-    except Exception:
-        pass  # non-fatal — pool will retry on first get_conn()
 
 # ══════════════════════════════════════════════════════════════════════
 # SESSION PERSISTENCE  (JSON file — survives Streamlit reruns)
